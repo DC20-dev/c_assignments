@@ -100,9 +100,8 @@ typedef struct linked_list_int
 LinkedListInt *linkedListInt_create_new(int value)
 {
     LinkedListInt* new_item = malloc(sizeof(LinkedListInt));
-    if(!value)
+    if(!new_item)
     {
-        //this should never happen, however this gets us covered for NULL values
         return NULL;
     }
     new_item->data = value;
@@ -188,9 +187,8 @@ typedef struct d_linked_list_int
 DLinkedListInt *dLinkedListInt_create_new(int value)
 {
     DLinkedListInt* new_item = malloc(sizeof(DLinkedListInt));
-    if(!value)
+    if(!new_item)
     {
-        //this should never happen, however this gets us covered for NULL values
         return NULL;
     }
     new_item->data = value;
@@ -302,4 +300,73 @@ typedef struct set_node
 typedef struct set_table
 {
     SetNode **nodes;
+    size_t hashmap_size;
+
 }SetTable;
+
+size_t djb33x_hash(const char *key, const size_t keylen)
+{
+    size_t hash = 5381;
+
+    for (size_t i = 0; i < keylen; i++)
+    {
+        hash = ((hash << 5) + hash) ^ key[i];
+    }
+    return hash;
+}
+
+SetTable *set_table_new(const size_t hashmap_size)
+{
+    SetTable *table = malloc(sizeof(SetTable));
+    if(!table)
+    {
+        return NULL;
+    }
+    table->hashmap_size = hashmap_size;
+    table->nodes = calloc(table->hashmap_size, sizeof(SetNode*));
+    if(!table->nodes)
+    {
+        free(table);
+        return NULL;
+    }
+    return table;
+}
+
+SetNode *set_insert(SetTable *table, const char *key, const size_t key_len)
+{
+    size_t hash = djb33x_hash(key, key_len);
+    size_t index = hash % table->hashmap_size;
+    SetNode *head = table->nodes[index];
+    if(!head)
+    {
+        table->nodes[index] = malloc(sizeof(SetNode));
+        if(!table->nodes[index])
+        {
+            return NULL;
+        }
+        table->nodes[index]->key = key;
+        table->nodes[index]->key_len = key_len;
+        table->nodes[index]->next = NULL;
+
+        return table->nodes[index];
+    }
+
+    SetNode *new_item = malloc(sizeof(SetNode));
+    if(!new_item)
+    {
+        return NULL;
+    }
+    new_item->key = key;
+    new_item->key_len = key_len;
+    new_item->next = NULL;
+
+    SetNode *tail = head;
+
+    while ((head))
+    {
+        tail = head;
+        head = head->next;
+    }
+
+    tail->next = new_item;
+}
