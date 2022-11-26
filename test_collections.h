@@ -14,7 +14,11 @@ void test_dLinkedList_print();
 void test_dLinkedList_insert_before();
 void test_dLinkedList_insert_after();
 void test_dLinkedList_shuffle();
-//sets
+//set
 void test_set();
 void test_set_search();
 void test_set_removal();
+//dictionary
+void test_dictionary();
+void test_dictionary_search();
+void test_dictionary_removal();

@@ -5,6 +5,15 @@
 #define TO_NODE (LinkedListNode *)
 #define TO_DL_NODE (DLinkedListNode *)
 #define TO_SET_NODE (SetNode *)
+#define TO_DICT_NODE (DictionaryNode *)
+
+typedef union data
+{
+    __uint8_t byte;
+    __uint16_t bytes_2;
+    __uint32_t bytes_4;
+    __uint64_t bytes_8;
+} Data;
 
 //--------------- Linked List ---------------------
 
@@ -404,6 +413,149 @@ SetNode *set_search(SetTable *table, const char *key, const size_t key_len)
 }
 
 int set_remove_key(SetTable *table, const char *key, const size_t key_len)
+{
+    size_t hash = djb33x_hash(key, key_len);
+    size_t index = hash % table->hashmap_size;
+    LinkedListNode *head = table->nodes[index];
+    if (!head)
+    {
+        // no elements with this hash
+        return 0;
+    }
+    if((TO_SET_NODE head)->key == key)
+    {
+        //first element in list
+        head = head->next;
+        free(table->nodes[index]);
+        table->nodes[index] = head;
+        return 1;
+    }
+    LinkedListNode *prev = table->nodes[index];
+    while (head)
+    {   
+        if((TO_SET_NODE head)->key == key)
+        {
+            //remove this element
+            //mind the allocation, free might break things
+            prev->next = head->next;
+            free(head);
+            return 1;
+        }
+        prev = head;
+        head = head->next;
+    }
+    
+    // key not found in collision list
+    return 0;
+}
+
+//-------------- DICTIONARY -----------------
+
+typedef struct dic_node
+{
+    SetNode node;
+    Data data;
+    
+}DictionaryNode;
+
+typedef struct dic
+{
+    //identical to SetTable, not using that to avoid verbose casting
+    LinkedListNode **nodes;
+    size_t hashmap_size;
+}Dictionary;
+
+
+Dictionary *dictionary_new(const size_t hashmap_size)
+{
+    Dictionary *table = malloc(sizeof(Dictionary));
+    if (!table)
+    {
+        return NULL;
+    }
+    table->hashmap_size = hashmap_size;
+    table->nodes = calloc(table->hashmap_size, sizeof(SetNode *));
+    if (!table->nodes)
+    {
+        free(table);
+        return NULL;
+    }
+    return table;
+}
+
+DictionaryNode *dictionary_insert(Dictionary *table, const char *key, const size_t key_len, Data data)
+{
+    size_t hash = djb33x_hash(key, key_len);
+    size_t index = hash % table->hashmap_size;
+    LinkedListNode *head = table->nodes[index];
+    if (!head)
+    {
+        table->nodes[index] = malloc(sizeof(DictionaryNode));
+        if (!table->nodes[index])
+        {
+            return NULL;
+        }
+        (TO_SET_NODE table->nodes[index])->key = key;
+        (TO_SET_NODE table->nodes[index])->key_len = key_len;
+        (TO_DICT_NODE table->nodes[index])->data = data;
+        table->nodes[index]->next = NULL;
+
+        return table->nodes[index];
+    }
+
+    DictionaryNode *new_item = malloc(sizeof(DictionaryNode));
+    if (!new_item)
+    {
+        return NULL;
+    }
+
+    (TO_SET_NODE new_item)->key = key;
+    (TO_SET_NODE new_item)->key_len = key_len;
+    new_item->data = data;
+    (TO_NODE new_item)->next = NULL;
+
+    LinkedListNode *tail = head;
+
+    while ((head))
+    {
+        if((TO_SET_NODE head)->key == key)//unique keys
+        {
+            return NULL;
+        }
+        tail = head;
+        head = head->next;
+    }
+
+    tail->next = new_item;
+}
+
+DictionaryNode *dictionary_search(Dictionary *table, const char *key, const size_t key_len)
+{
+    size_t hash = djb33x_hash(key, key_len);
+    size_t index = hash % table->hashmap_size;
+    LinkedListNode *head = table->nodes[index];
+
+    if (!head)
+    {
+        // no element with this hash
+        return NULL;
+    }
+
+    while (head)
+    {
+        // check collision list
+        if ((TO_SET_NODE head)->key == key)
+        {
+            return head;
+        }
+        head = head->next;
+    }
+
+    // key not found
+    return NULL;
+}
+
+int dictionary_remove_key(Dictionary *table, const char *key, const size_t key_len)
 {
     size_t hash = djb33x_hash(key, key_len);
     size_t index = hash % table->hashmap_size;

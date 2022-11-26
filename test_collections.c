@@ -7,6 +7,7 @@ int main(int argc, char** argv)
     test_linkedList();
     test_dLinkedList();
     test_set();
+    test_dictionary();
 }
 
 // --------------------- linked list ----------------------
@@ -236,4 +237,50 @@ void test_set_removal()
     found = set_search(table, "Vicenza", strlen("Vicenza"));
     if(!found)
         printf("Vicenza key removed\n");
+}
+//--------------------- DICTIONARY ------------------------
+
+Dictionary *init_dictionary()
+{
+    Dictionary *dict = dictionary_new(10);
+    Data data;
+    data.bytes_4 = 8;
+    char *string = "byte";
+    dictionary_insert(dict, string, strlen(string), data);
+    string = "2bytes";
+    data.bytes_4 = 16;
+    dictionary_insert(dict, string, strlen(string), data);
+    string = "4bytes";
+    data.bytes_4 = 32;
+    dictionary_insert(dict, string, strlen(string), data);
+    string = "8bytes";
+    data.bytes_4 = 64;
+    dictionary_insert(dict, string, strlen(string), data);
+
+    return dict;
+}
+
+void test_dictionary()
+{
+    printf("\n");
+    puts("########## DICTIONARY ##########");
+    printf("[test]\n");
+    test_dictionary_search();
+    printf("[test]\n");
+    test_dictionary_removal();
+}
+
+void test_dictionary_search()
+{
+    Dictionary *d = init_dictionary();
+    DictionaryNode* node = dictionary_search(d, "byte", strlen("byte"));
+    if(node)
+    {
+        printf("key = byte, data = %d\n", node->data);
+    }
+}
+
+void test_dictionary_removal()
+{
+
 }
