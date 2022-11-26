@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #define TO_NODE (LinkedListNode *)
 #define TO_DL_NODE (DLinkedListNode *)
@@ -9,10 +10,10 @@
 
 typedef union data
 {
-    __uint8_t byte;
-    __uint16_t bytes_2;
-    __uint32_t bytes_4;
-    __uint64_t bytes_8;
+    uint8_t byte;
+    uint16_t bytes_2;
+    uint32_t bytes_4;
+    uint64_t bytes_8;
 } Data;
 
 //--------------- Linked List ---------------------

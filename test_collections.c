@@ -306,14 +306,15 @@ void test_dictionary_removal()
 {
     Dictionary *d = init_dictionary();
     char *string = "2bytes";
+    printf("removing %s key from dictionary...\n", string);
     int result = dictionary_remove_key(d, string, strlen(string));
     printf("removal ended with %d\n", result);
     DictionaryNode *node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("%s key found\n");
+        printf("%s key found\n", (TO_SET_NODE node)->key);
     }
     else{
-        printf("%s key removed successfully!\n");
+        printf("%s key removed successfully!\n", string);
     }
 }
