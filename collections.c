@@ -463,6 +463,7 @@ typedef struct dic
     //identical to SetTable, not using that to avoid verbose casting
     LinkedListNode **nodes;
     size_t hashmap_size;
+    int _collisions;
 }Dictionary;
 
 
@@ -474,7 +475,8 @@ Dictionary *dictionary_new(const size_t hashmap_size)
         return NULL;
     }
     table->hashmap_size = hashmap_size;
-    table->nodes = calloc(table->hashmap_size, sizeof(SetNode *));
+    table->nodes = calloc(table->hashmap_size, sizeof(DictionaryNode *));
+    table->_collisions = 0;
     if (!table->nodes)
     {
         free(table);
@@ -483,7 +485,7 @@ Dictionary *dictionary_new(const size_t hashmap_size)
     return table;
 }
 
-DictionaryNode *dictionary_insert(Dictionary *table, const char *key, const size_t key_len, Data data)
+DictionaryNode *dictionary_insert(Dictionary *table, const char *key, const size_t key_len, const Data data)
 {
     size_t hash = djb33x_hash(key, key_len);
     size_t index = hash % table->hashmap_size;
@@ -527,6 +529,7 @@ DictionaryNode *dictionary_insert(Dictionary *table, const char *key, const size
     }
 
     tail->next = new_item;
+    table->_collisions++;
 }
 
 DictionaryNode *dictionary_search(Dictionary *table, const char *key, const size_t key_len)
@@ -534,7 +537,6 @@ DictionaryNode *dictionary_search(Dictionary *table, const char *key, const size
     size_t hash = djb33x_hash(key, key_len);
     size_t index = hash % table->hashmap_size;
     LinkedListNode *head = table->nodes[index];
-
     if (!head)
     {
         // no element with this hash
@@ -568,6 +570,7 @@ int dictionary_remove_key(Dictionary *table, const char *key, const size_t key_l
     if((TO_SET_NODE head)->key == key)
     {
         //first element in list
+        printf("%s", table->nodes[index]);
         head = head->next;
         free(table->nodes[index]);
         table->nodes[index] = head;
@@ -581,6 +584,7 @@ int dictionary_remove_key(Dictionary *table, const char *key, const size_t key_l
             //remove this element
             //mind the allocation, free might break things
             prev->next = head->next;
+            printf("%s", (TO_SET_NODE head)->key);
             free(head);
             return 1;
         }

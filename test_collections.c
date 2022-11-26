@@ -256,6 +256,9 @@ Dictionary *init_dictionary()
     string = "8bytes";
     data.bytes_4 = 64;
     dictionary_insert(dict, string, strlen(string), data);
+    string = "16bytes";
+    data.bytes_4 = 128;
+    dictionary_insert(dict, string, strlen(string), data);
 
     return dict;
 }
@@ -273,14 +276,44 @@ void test_dictionary()
 void test_dictionary_search()
 {
     Dictionary *d = init_dictionary();
-    DictionaryNode* node = dictionary_search(d, "byte", strlen("byte"));
+    char *string = "byte";
+    DictionaryNode* node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("key = byte, data = %d\n", node->data);
+        printf("key = %s, data = %d\n", string, node->data);
+    }
+    string = "2bytes";
+    node = dictionary_search(d, string, strlen(string));
+    if(node)
+    {
+        printf("key = %s, data = %d\n", string, node->data);
+    }
+    string = "3bytes";
+    node = dictionary_search(d, string, strlen(string));
+    if(!node)
+    {
+        printf("key %s not found\n", string);
+    }
+    string = "16bytes";
+    node = dictionary_search(d, string, strlen(string));
+    if(node)
+    {
+        printf("key = %s, data = %d\n", string, node->data);
     }
 }
 
 void test_dictionary_removal()
 {
-
+    Dictionary *d = init_dictionary();
+    char *string = "2bytes";
+    int result = dictionary_remove_key(d, string, strlen(string));
+    printf("removal ended with %d\n", result);
+    DictionaryNode *node = dictionary_search(d, string, strlen(string));
+    if(node)
+    {
+        printf("%s key found\n");
+    }
+    else{
+        printf("%s key removed successfully!\n");
+    }
 }
