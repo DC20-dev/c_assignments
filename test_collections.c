@@ -1,10 +1,12 @@
 #include "collections.c"
 #include "test_collections.h"
+#include <string.h>
 
 int main(int argc, char** argv)
 {
     test_linkedList();
     test_dLinkedList();
+    test_set();
 }
 
 // --------------------- linked list ----------------------
@@ -111,7 +113,7 @@ void test_dLinkedList()
     printf("[test]\n");
     test_dLinkedList_insert_after();
     printf("[test]\n");
-    test_dLinkedList_shuffling();
+    test_dLinkedList_shuffle();
 }
 
 void test_dLinkedList_get_tail()
@@ -164,4 +166,74 @@ void test_dLinkedList_insert_after()
 void test_dLinkedList_shuffle()
 {
     DLinkedListInt *list = init_doubly_linked_list();
+}
+
+//--------------------- SETS ------------------------
+
+SetTable *init_set()
+{
+    SetTable *table = set_table_new(10);
+    set_insert(table, "Parma", strlen("Parma"));
+    set_insert(table, "Milano", strlen("Milano"));
+    set_insert(table, "Firenze", strlen("Firenze"));
+    set_insert(table, "Lucca", strlen("Lucca"));
+    set_insert(table, "Vicenza", strlen("Vicenza"));
+    set_insert(table, "Padova", strlen("Padova"));
+    set_insert(table, "Palermo", strlen("Palermo"));
+    set_insert(table, "Pisa", strlen("Pisa"));
+    return table;
+}
+
+void test_set()
+{
+    printf("\n");
+    puts("########## SETS ##########");
+    printf("[test]\n");
+    test_set_search();
+    printf("[test]\n");
+    test_set_removal();
+}
+
+void test_set_search()
+{
+    SetTable *table = init_set();
+    char *string = "Milano";
+    SetNode *found = set_search(table, string, strlen(string));
+
+    if(found)
+        printf("%s key found!\n", found->key);
+    else
+        printf("%s key not found...\n", string);
+
+    string = "Modena";
+    found = set_search(table, string, strlen(string));
+
+    if(found)
+        printf("%s key found!\n", found->key);
+    else
+        printf("%s key not found...\n", string);
+
+
+    string = "Pisa";
+    found = set_search(table, string, strlen(string));
+
+    if(found)
+        printf("%s key found!\n", found->key);
+    else
+        printf("%s key not found...\n", string);
+
+}
+
+void test_set_removal()
+{
+    SetTable *table = init_set();
+    SetNode *found = set_search(table, "Milano", strlen("Milano"));
+    int removed = set_remove_key(table, "Milano", strlen("Milano"));
+    found = set_search(table, "Milano", strlen("Milano"));
+    if(!found)
+        printf("Milano key removed\n");
+    removed = set_remove_key(table, "Vicenza", strlen("Vicenza"));
+    found = set_search(table, "Vicenza", strlen("Vicenza"));
+    if(!found)
+        printf("Vicenza key removed\n");
 }

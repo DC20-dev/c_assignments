@@ -15,3 +15,6 @@ void test_dLinkedList_insert_before();
 void test_dLinkedList_insert_after();
 void test_dLinkedList_shuffle();
 //sets
+void test_set();
+void test_set_search();
+void test_set_removal();
