@@ -173,7 +173,7 @@ void test_dLinkedList_shuffle()
 
 SetTable *init_set()
 {
-    SetTable *table = set_table_new(10);
+    SetTable *table = set_table_new(4);
     set_insert(table, "Parma", strlen("Parma"));
     set_insert(table, "Milano", strlen("Milano"));
     set_insert(table, "Firenze", strlen("Firenze"));
@@ -223,11 +223,20 @@ void test_set_search()
     else
         printf("%s key not found...\n", string);
 
+    string = "Lucca";
+    found = set_search(table, string, strlen(string));
+
+    if(found)
+        printf("%s key found!\n", found->key);
+    else
+        printf("%s key not found...\n", string);
+
 }
 
 void test_set_removal()
 {
     SetTable *table = init_set();
+    printf("set collisions = %d\n", table->_collisions);
     SetNode *found = set_search(table, "Milano", strlen("Milano"));
     int removed = set_remove_key(table, "Milano", strlen("Milano"));
     found = set_search(table, "Milano", strlen("Milano"));
@@ -237,12 +246,14 @@ void test_set_removal()
     found = set_search(table, "Vicenza", strlen("Vicenza"));
     if(!found)
         printf("Vicenza key removed\n");
+    printf("set collisions = %d\n", table->_collisions);
 }
 //--------------------- DICTIONARY ------------------------
 
 Dictionary *init_dictionary()
 {
-    Dictionary *dict = dictionary_new(10);
+    //forcing collisions
+    Dictionary *dict = dictionary_new(2);
     Data data;
     data.bytes_4 = 8;
     char *string = "byte";
@@ -305,16 +316,18 @@ void test_dictionary_search()
 void test_dictionary_removal()
 {
     Dictionary *d = init_dictionary();
+    printf("set collisions = %d\n", (TO_SET d)->_collisions);
     char *string = "2bytes";
-    printf("removing %s key from dictionary...\n", string);
+    printf("removing \"%s\" key from dictionary...\n", string);
     int result = dictionary_remove_key(d, string, strlen(string));
     printf("removal ended with %d\n", result);
     DictionaryNode *node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("%s key found\n", (TO_SET_NODE node)->key);
+        printf("\"%s\" key found\n", (TO_SET_NODE node)->key);
     }
     else{
-        printf("%s key removed successfully!\n", string);
+        printf("\"%s\" key removed successfully!\n", string);
     }
+    printf("set collisions = %d\n", (TO_SET d)->_collisions);
 }

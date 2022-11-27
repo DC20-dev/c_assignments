@@ -6,6 +6,7 @@
 #define TO_NODE (LinkedListNode *)
 #define TO_DL_NODE (DLinkedListNode *)
 #define TO_SET_NODE (SetNode *)
+#define TO_SET (SetTable *)
 #define TO_DICT_NODE (DictionaryNode *)
 
 typedef union data
@@ -303,8 +304,8 @@ void dLinkedListInt_shuffle(DLinkedListInt **head)
 typedef struct set_node
 {
     LinkedListNode *next;
-    const char *key;
     size_t key_len;
+    const char *key;
 
 } SetNode;
 
@@ -312,7 +313,7 @@ typedef struct set_table
 {
     LinkedListNode **nodes;
     size_t hashmap_size;
-
+    int _collisions;
 } SetTable;
 
 size_t djb33x_hash(const char *key, const size_t keylen)
@@ -326,8 +327,11 @@ size_t djb33x_hash(const char *key, const size_t keylen)
     return hash;
 }
 
+int _rehash_set(SetTable *table);
+
 SetTable *set_table_new(const size_t hashmap_size)
 {
+    //2,4 crashes the rehashing
     SetTable *table = malloc(sizeof(SetTable));
     if (!table)
     {
@@ -345,6 +349,13 @@ SetTable *set_table_new(const size_t hashmap_size)
 
 SetNode *set_insert(SetTable *table, const char *key, const size_t key_len)
 {
+    //check on collisions and rehash if necessary
+    if(table->hashmap_size * 0.75f <= table->_collisions)
+    {
+        printf("\"%s\" triggered rehashing!\n", key);
+        //load factor is hardcoded and arbitrary
+        _rehash_set(table);
+    }
     size_t hash = djb33x_hash(key, key_len);
     size_t index = hash % table->hashmap_size;
     LinkedListNode *head = table->nodes[index];
@@ -383,7 +394,7 @@ SetNode *set_insert(SetTable *table, const char *key, const size_t key_len)
         tail = head;
         head = head->next;
     }
-
+    table->_collisions++;
     tail->next = new_item;
 }
 
@@ -425,6 +436,10 @@ int set_remove_key(SetTable *table, const char *key, const size_t key_len)
     }
     if((TO_SET_NODE head)->key == key)
     {
+        if(head->next)
+        {
+            table->_collisions--;
+        }
         //first element in list
         head = head->next;
         free(table->nodes[index]);
@@ -436,8 +451,7 @@ int set_remove_key(SetTable *table, const char *key, const size_t key_len)
     {   
         if((TO_SET_NODE head)->key == key)
         {
-            //remove this element
-            //mind the allocation, free might break things
+            table->_collisions--;
             prev->next = head->next;
             free(head);
             return 1;
@@ -448,6 +462,80 @@ int set_remove_key(SetTable *table, const char *key, const size_t key_len)
     
     // key not found in collision list
     return 0;
+}
+
+int _rehash_set(SetTable *table)
+{
+    // SetTable *new_table = set_table_new((table->hashmap_size)*2);
+    // if(!new_table)
+    // {
+    //     return 0;
+    // }
+    // //check every item in table and move it to the new pos
+    // LinkedListNode* head;
+    // for (size_t i = 0; i < table->hashmap_size; i++)
+    // {
+    //     head = table->nodes[i];
+    //     while (head)
+    //     {
+    //         //copy in the new one
+    //         if(!set_insert(new_table, (TO_SET_NODE head)->key, (TO_SET_NODE head)->key_len))
+    //         {
+    //             return 0;
+    //         }
+    //         //delete the old one
+    //         set_remove_key(table, (TO_SET_NODE head)->key, (TO_SET_NODE head)->key_len);
+
+    //         head = head->next;
+    //     }
+    // }
+    // //clean old table
+    // free(table);
+    // //point table to the new table
+    // *table = *new_table;
+    // return 1;
+    SetTable * new = realloc(table, (table->hashmap_size*2)*sizeof(SetNode *));
+    if(!new)
+    {
+        return 0;
+    }
+    *table = *new;
+    table->_collisions = 0;
+    //clear collisions counter
+    for (size_t i = 0; i < table->hashmap_size; i++)
+    {
+        while (table->nodes[i])
+        {
+            //pop from list using list function
+            LinkedListNode *current = linkedList_pop(table->nodes[i]);
+            if(!current)
+            {
+                return 0;
+            }
+            //calculate new hash
+            size_t hash = djb33x_hash((TO_SET_NODE table->nodes[i])->key, (TO_SET_NODE table->nodes[i])->key_len);
+            size_t index = hash % table->hashmap_size;
+            //set to the new list position
+            if(!table->nodes[index])
+            {
+                //first element (hopefully!)
+                *table->nodes[index] = *current;
+                return 1;
+            }
+            LinkedListNode *head = table->nodes[index];
+            LinkedListNode *tail = NULL;
+            while ((head))
+            {
+                tail = head;
+                head = head->next;
+            }
+            //track new collisions
+            table->_collisions++;
+            tail->next = current;
+            return 1;
+        }
+    }
+
 }
 
 //-------------- DICTIONARY -----------------
@@ -461,10 +549,7 @@ typedef struct dic_node
 
 typedef struct dic
 {
-    //identical to SetTable, not using that to avoid verbose casting
-    LinkedListNode **nodes;
-    size_t hashmap_size;
-    int _collisions;
+    SetTable table;
 }Dictionary;
 
 
@@ -475,10 +560,10 @@ Dictionary *dictionary_new(const size_t hashmap_size)
     {
         return NULL;
     }
-    table->hashmap_size = hashmap_size;
-    table->nodes = calloc(table->hashmap_size, sizeof(DictionaryNode *));
-    table->_collisions = 0;
-    if (!table->nodes)
+    (TO_SET table)->hashmap_size = hashmap_size;
+    (TO_SET table)->nodes = calloc((TO_SET table)->hashmap_size, sizeof(DictionaryNode *));
+    (TO_SET table)->_collisions = 0;
+    if (!(TO_SET table)->nodes)
     {
         free(table);
         return NULL;
@@ -489,21 +574,21 @@ Dictionary *dictionary_new(const size_t hashmap_size)
 DictionaryNode *dictionary_insert(Dictionary *table, const char *key, const size_t key_len, const Data data)
 {
     size_t hash = djb33x_hash(key, key_len);
-    size_t index = hash % table->hashmap_size;
-    LinkedListNode *head = table->nodes[index];
+    size_t index = hash % (TO_SET table)->hashmap_size;
+    LinkedListNode *head = (TO_SET table)->nodes[index];
     if (!head)
     {
-        table->nodes[index] = malloc(sizeof(DictionaryNode));
-        if (!table->nodes[index])
+        (TO_SET table)->nodes[index] = malloc(sizeof(DictionaryNode));
+        if (!(TO_SET table)->nodes[index])
         {
             return NULL;
         }
-        (TO_SET_NODE table->nodes[index])->key = key;
-        (TO_SET_NODE table->nodes[index])->key_len = key_len;
-        (TO_DICT_NODE table->nodes[index])->data = data;
-        table->nodes[index]->next = NULL;
+        (TO_SET_NODE (TO_SET table)->nodes[index])->key = key;
+        (TO_SET_NODE (TO_SET table)->nodes[index])->key_len = key_len;
+        (TO_DICT_NODE (TO_SET table)->nodes[index])->data = data;
+        (TO_SET table)->nodes[index]->next = NULL;
 
-        return table->nodes[index];
+        return (TO_SET table)->nodes[index];
     }
 
     DictionaryNode *new_item = malloc(sizeof(DictionaryNode));
@@ -530,69 +615,15 @@ DictionaryNode *dictionary_insert(Dictionary *table, const char *key, const size
     }
 
     tail->next = new_item;
-    table->_collisions++;
+    (TO_SET table)->_collisions++;
 }
 
 DictionaryNode *dictionary_search(Dictionary *table, const char *key, const size_t key_len)
 {
-    size_t hash = djb33x_hash(key, key_len);
-    size_t index = hash % table->hashmap_size;
-    LinkedListNode *head = table->nodes[index];
-    if (!head)
-    {
-        // no element with this hash
-        return NULL;
-    }
-
-    while (head)
-    {
-        // check collision list
-        if ((TO_SET_NODE head)->key == key)
-        {
-            return head;
-        }
-        head = head->next;
-    }
-
-    // key not found
-    return NULL;
+    return TO_DICT_NODE set_search(table, key, key_len);
 }
 
 int dictionary_remove_key(Dictionary *table, const char *key, const size_t key_len)
 {
-    size_t hash = djb33x_hash(key, key_len);
-    size_t index = hash % table->hashmap_size;
-    LinkedListNode *head = table->nodes[index];
-    if (!head)
-    {
-        // no elements with this hash
-        return 0;
-    }
-    if((TO_SET_NODE head)->key == key)
-    {
-        //first element in list
-        printf("%s", table->nodes[index]);
-        head = head->next;
-        free(table->nodes[index]);
-        table->nodes[index] = head;
-        return 1;
-    }
-    LinkedListNode *prev = table->nodes[index];
-    while (head)
-    {   
-        if((TO_SET_NODE head)->key == key)
-        {
-            //remove this element
-            //mind the allocation, free might break things
-            prev->next = head->next;
-            printf("%s", (TO_SET_NODE head)->key);
-            free(head);
-            return 1;
-        }
-        prev = head;
-        head = head->next;
-    }
-    
-    // key not found in collision list
-    return 0;
+    return set_remove_key(table, key, key_len);
 }
