@@ -39,6 +39,22 @@ LinkedListNode *linkedList_get_tail(LinkedListNode **head)
     return last_node;
 }
 
+int linkedList_get_len(LinkedListNode **head)
+{
+    LinkedListNode *current_node = *head;
+    LinkedListNode *last_node = NULL;
+    int count = 0;
+
+    while (current_node)
+    {
+        count++;
+        last_node = current_node;
+        current_node = current_node->next;
+    }
+
+    return count;
+}
+
 LinkedListNode *linkedList_append(LinkedListNode **head, LinkedListNode *item)
 {
     LinkedListNode *tail = linkedList_get_tail(head);
@@ -108,7 +124,7 @@ typedef struct linked_list_int
 
 } LinkedListInt;
 
-LinkedListInt *linkedListInt_create_new(int value)
+LinkedListInt *linkedListInt_create_new(const int value)
 {
     LinkedListInt *new_item = malloc(sizeof(LinkedListInt));
     if (!new_item)
@@ -121,7 +137,7 @@ LinkedListInt *linkedListInt_create_new(int value)
 }
 
 // remove item exercise
-int linkedListInt_remove_item(LinkedListInt **head, int item)
+int linkedListInt_remove_item(LinkedListInt **head, const int item)
 {
     LinkedListNode *current = TO_NODE * head;
     LinkedListNode *prev = NULL;
@@ -195,7 +211,7 @@ typedef struct d_linked_list_int
 
 } DLinkedListInt;
 
-DLinkedListInt *dLinkedListInt_create_new(int value)
+DLinkedListInt *dLinkedListInt_create_new(const int value)
 {
     DLinkedListInt *new_item = malloc(sizeof(DLinkedListInt));
     if (!new_item)
@@ -209,7 +225,7 @@ DLinkedListInt *dLinkedListInt_create_new(int value)
 }
 
 // remove item exercise
-int dLinkedListInt_remove_item(DLinkedListNode **head, int item)
+int dLinkedListInt_remove_item(DLinkedListNode **head, const int item)
 {
     DLinkedListNode *current = TO_DL_NODE * head;
     while (current)
@@ -250,7 +266,7 @@ void dLinkedListInt_print(DLinkedListInt **head)
 }
 
 // insert before exercise
-int dLinkedListInt_insert_before(DLinkedListInt **head, DLinkedListInt *item, int before_this)
+int dLinkedListInt_insert_before(DLinkedListInt **head, DLinkedListInt *item, const int before_this)
 {
     DLinkedListNode *current = TO_DL_NODE * head;
     while (current)
@@ -272,7 +288,7 @@ int dLinkedListInt_insert_before(DLinkedListInt **head, DLinkedListInt *item, in
 }
 
 // insert after exercise
-int dLinkedListInt_insert_after(DLinkedListInt **head, DLinkedListInt *item, int after_this)
+int dLinkedListInt_insert_after(DLinkedListInt **head, DLinkedListInt *item, const int after_this)
 {
     DLinkedListNode *current = TO_DL_NODE * head;
     while (current)
@@ -294,9 +310,38 @@ int dLinkedListInt_insert_after(DLinkedListInt **head, DLinkedListInt *item, int
 
     return 0;
 }
-// TODO
-void dLinkedListInt_shuffle(DLinkedListInt **head)
+
+int dLinkedList_shuffle(DLinkedListNode **head)
 {
+    const size_t len = linkedList_get_len(head);
+    DLinkedListNode ** nodes = calloc(len, sizeof(DLinkedListNode *));
+    if(!nodes)
+    {
+        return 0;
+    }
+    for (size_t i = 0; i < len; i++)
+    {
+        //granted that is len because already calculated, not possible to go off list
+        nodes[i] = linkedList_pop(head);
+    }
+    //now shuffle this array using Fisher&Yates algorithm 
+    for (size_t i = 0; i < len-1; i++)
+    {
+        //clamps the number between i and len
+        const size_t new_index = (rand()% (len - i)) + i;
+        //swap the two pointers
+        DLinkedListNode * temp = nodes[new_index];
+        nodes[new_index] = nodes[i];
+        nodes[i] = temp;
+    }
+    //reinsert back the elements in new order
+    for (size_t i = 0; i < len; i++)
+    {
+        dLinkedList_append(head, nodes[i]);
+    }
+    //free memory used in array
+    free(nodes);
+    return 1;
 }
 
 //------------------- SETS ---------------------
@@ -356,8 +401,8 @@ SetNode *set_insert(SetTable *table, const char *key, const size_t key_len)
         //load factor is hardcoded and arbitrary
         _rehash(table, sizeof(SetNode *));
     }
-    size_t hash = djb33x_hash(key, key_len);
-    size_t index = hash % table->hashmap_size;
+    const size_t hash = djb33x_hash(key, key_len);
+    const size_t index = hash % table->hashmap_size;
     LinkedListNode *head = table->nodes[index];
     if (!head)
     {
@@ -400,8 +445,8 @@ SetNode *set_insert(SetTable *table, const char *key, const size_t key_len)
 
 SetNode *set_search(SetTable *table, const char *key, const size_t key_len)
 {
-    size_t hash = djb33x_hash(key, key_len);
-    size_t index = hash % table->hashmap_size;
+    const size_t hash = djb33x_hash(key, key_len);
+    const size_t index = hash % table->hashmap_size;
     LinkedListNode *head = table->nodes[index];
 
     if (!head)
@@ -426,8 +471,8 @@ SetNode *set_search(SetTable *table, const char *key, const size_t key_len)
 
 int set_remove_key(SetTable *table, const char *key, const size_t key_len)
 {
-    size_t hash = djb33x_hash(key, key_len);
-    size_t index = hash % table->hashmap_size;
+    const size_t hash = djb33x_hash(key, key_len);
+    const size_t index = hash % table->hashmap_size;
     LinkedListNode *head = table->nodes[index];
     if (!head)
     {
@@ -464,7 +509,7 @@ int set_remove_key(SetTable *table, const char *key, const size_t key_len)
     return 0;
 }
 
-int _rehash(SetTable *table, size_t size_of_element)
+int _rehash(SetTable *table, const size_t size_of_element)
 {
     SetTable * new = realloc(table, (table->hashmap_size*2)*size_of_element);
     if(!new)
@@ -485,8 +530,8 @@ int _rehash(SetTable *table, size_t size_of_element)
                 return 0;
             }
             //calculate new hash
-            size_t hash = djb33x_hash((TO_SET_NODE table->nodes[i])->key, (TO_SET_NODE table->nodes[i])->key_len);
-            size_t index = hash % table->hashmap_size;
+            const size_t hash = djb33x_hash((TO_SET_NODE table->nodes[i])->key, (TO_SET_NODE table->nodes[i])->key_len);
+            const size_t index = hash % table->hashmap_size;
             //set to the new list position
             if(!table->nodes[index])
             {
@@ -550,8 +595,8 @@ DictionaryNode *dictionary_insert(Dictionary *table, const char *key, const size
         //load factor is hardcoded and arbitrary
         _rehash(table, sizeof(DictionaryNode *));
     }
-    size_t hash = djb33x_hash(key, key_len);
-    size_t index = hash % (TO_SET table)->hashmap_size;
+    const size_t hash = djb33x_hash(key, key_len);
+    const size_t index = hash % (TO_SET table)->hashmap_size;
     LinkedListNode *head = (TO_SET table)->nodes[index];
     if (!head)
     {

@@ -4,6 +4,7 @@
 
 int main(int argc, char** argv)
 {
+    srand(time(0));
     test_linkedList();
     test_dLinkedList();
     test_set();
@@ -95,7 +96,9 @@ DLinkedListNode *init_doubly_linked_list()
 {
     DLinkedListNode* list = dLinkedListInt_create_new(9);
     dLinkedList_append(TO_DL_NODE &list, TO_DL_NODE dLinkedListInt_create_new(5));
+    dLinkedList_append(TO_DL_NODE &list, TO_DL_NODE  dLinkedListInt_create_new(2));
     dLinkedList_append(TO_DL_NODE &list, TO_DL_NODE  dLinkedListInt_create_new(1));
+    dLinkedList_append(TO_DL_NODE &list, TO_DL_NODE  dLinkedListInt_create_new(4));
     return list;
 }
 
@@ -167,6 +170,11 @@ void test_dLinkedList_insert_after()
 void test_dLinkedList_shuffle()
 {
     DLinkedListInt *list = init_doubly_linked_list();
+    printf("List before shuffling: ");
+    dLinkedListInt_print(&list);
+    dLinkedList_shuffle(&list);
+    printf("List after shuffling: ");
+    dLinkedListInt_print(&list);
 }
 
 //--------------------- SETS ------------------------
