@@ -327,7 +327,7 @@ size_t djb33x_hash(const char *key, const size_t keylen)
     return hash;
 }
 
-int _rehash_set(SetTable *table);
+int _rehash(SetTable *table, size_t size_of_element);
 
 SetTable *set_table_new(const size_t hashmap_size)
 {
@@ -354,7 +354,7 @@ SetNode *set_insert(SetTable *table, const char *key, const size_t key_len)
     {
         printf("\"%s\" triggered rehashing!\n", key);
         //load factor is hardcoded and arbitrary
-        _rehash_set(table);
+        _rehash(table, sizeof(SetNode *));
     }
     size_t hash = djb33x_hash(key, key_len);
     size_t index = hash % table->hashmap_size;
@@ -464,37 +464,9 @@ int set_remove_key(SetTable *table, const char *key, const size_t key_len)
     return 0;
 }
 
-int _rehash_set(SetTable *table)
+int _rehash(SetTable *table, size_t size_of_element)
 {
-    // SetTable *new_table = set_table_new((table->hashmap_size)*2);
-    // if(!new_table)
-    // {
-    //     return 0;
-    // }
-    // //check every item in table and move it to the new pos
-    // LinkedListNode* head;
-    // for (size_t i = 0; i < table->hashmap_size; i++)
-    // {
-    //     head = table->nodes[i];
-    //     while (head)
-    //     {
-    //         //copy in the new one
-    //         if(!set_insert(new_table, (TO_SET_NODE head)->key, (TO_SET_NODE head)->key_len))
-    //         {
-    //             return 0;
-    //         }
-    //         //delete the old one
-    //         set_remove_key(table, (TO_SET_NODE head)->key, (TO_SET_NODE head)->key_len);
-
-    //         head = head->next;
-    //     }
-    // }
-    // //clean old table
-    // free(table);
-    // //point table to the new table
-    // *table = *new_table;
-    // return 1;
-    SetTable * new = realloc(table, (table->hashmap_size*2)*sizeof(SetNode *));
+    SetTable * new = realloc(table, (table->hashmap_size*2)*size_of_element);
     if(!new)
     {
         return 0;
@@ -535,7 +507,6 @@ int _rehash_set(SetTable *table)
             return 1;
         }
     }
-
 }
 
 //-------------- DICTIONARY -----------------
@@ -573,6 +544,12 @@ Dictionary *dictionary_new(const size_t hashmap_size)
 
 DictionaryNode *dictionary_insert(Dictionary *table, const char *key, const size_t key_len, const Data data)
 {
+    if((TO_SET table)->hashmap_size * 0.75f <=(TO_SET table)->_collisions)
+    {
+        printf("\"%s\" triggered rehashing!\n", key);
+        //load factor is hardcoded and arbitrary
+        _rehash(table, sizeof(DictionaryNode *));
+    }
     size_t hash = djb33x_hash(key, key_len);
     size_t index = hash % (TO_SET table)->hashmap_size;
     LinkedListNode *head = (TO_SET table)->nodes[index];
