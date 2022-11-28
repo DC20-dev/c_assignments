@@ -5,183 +5,183 @@
 int main(int argc, char** argv)
 {
     srand(time(0));
-    test_linkedList();
-    test_dLinkedList();
+    test_linked_list();
+    test_d_linked_list();
     test_set();
     test_dictionary();
 }
 
 // --------------------- linked list ----------------------
-void test_linkedList()
+void test_linked_list()
 {
     printf("\n");
     puts("########## LINKED LIST ##########");
     printf("[test]\n");
-    test_linkedList_print();
+    test_linked_list_print();
     printf("[test]\n");
-    test_linkedList_get_tail();
+    test_linked_list_get_tail();
     printf("[test]\n");
-    test_linkedList_reverse();
+    test_linked_list_reverse();
     printf("[test]\n");
-    test_linkedList_pop();
+    test_linked_list_pop();
     printf("[test]\n");
-    test_linkedList_dequeue();
+    test_linked_list_dequeue();
     printf("[test]\n");
-    test_linkedList_remove_item();
+    test_linked_list_remove_item();
 }
 
-LinkedListNode *init_linked_list()
+linked_list_int_t *init_linked_list()
 {
-    LinkedListInt* list = linkedListInt_create_new(1);
-    linkedList_append(TO_NODE &list, TO_NODE linkedListInt_create_new(2));
-    linkedList_append(TO_NODE &list, TO_NODE linkedListInt_create_new(3));
+    linked_list_int_t* list = linked_list_int_create_new(1);
+    linked_list_append(TO_NODE &list, TO_NODE linked_list_int_create_new(2));
+    linked_list_append(TO_NODE &list, TO_NODE linked_list_int_create_new(3));
     return list;
 }
 
-void test_linkedList_print()
+void test_linked_list_print()
 {
-    LinkedListInt* list = init_linked_list();
+    linked_list_int_t* list = init_linked_list();
     printf("full list is: ");
-    linkedListInt_print(TO_NODE &list);
+    linked_list_int_print(TO_NODE &list);
 }
 
-void test_linkedList_reverse()
+void test_linked_list_reverse()
 {
-    LinkedListInt* list = init_linked_list();
+    linked_list_int_t* list = init_linked_list();
     printf("reversed list is: ");
-    list = linkedList_reverse(TO_NODE &list);
-    linkedListInt_print(&list);
+    list = linked_list_reverse(TO_NODE &list);
+    linked_list_int_print(&list);
 }
 
-void test_linkedList_get_tail()
+void test_linked_list_get_tail()
 {
-    LinkedListInt *list = init_linked_list();
-    LinkedListInt *tail = linkedList_get_tail(TO_NODE &list);
+    linked_list_int_t *list = init_linked_list();
+    linked_list_int_t *tail = linked_list_get_tail(TO_NODE &list);
     printf("tail is = %d\n", tail->data);
 }
 
-void test_linkedList_pop()
+void test_linked_list_pop()
 {
-    LinkedListInt* list = init_linked_list();
+    linked_list_int_t* list = init_linked_list();
     printf("before pop list is: ");
-    linkedListInt_print(TO_NODE &list);
-    linkedList_pop(TO_NODE &list);
+    linked_list_int_print(TO_NODE &list);
+    linked_list_pop(TO_NODE &list);
     printf("after pop list is: ");
-    linkedListInt_print(TO_NODE &list);
+    linked_list_int_print(TO_NODE &list);
 }
 
-void test_linkedList_dequeue()
+void test_linked_list_dequeue()
 {
-    LinkedListInt* list = init_linked_list();
+    linked_list_int_t* list = init_linked_list();
     printf("before dequeue list is: ");
-    linkedListInt_print(TO_NODE &list);
-    linkedList_dequeue(TO_NODE &list);
+    linked_list_int_print(TO_NODE &list);
+    linked_list_dequeue(TO_NODE &list);
     printf("after dequeue list is: ");
-    linkedListInt_print(TO_NODE &list);
+    linked_list_int_print(TO_NODE &list);
 }
 
-void test_linkedList_remove_item()
+void test_linked_list_remove_item()
 {
     int to_remove = 2;
-    LinkedListInt* list = init_linked_list();
+    linked_list_int_t* list = init_linked_list();
     printf("before %d removal list is: ", to_remove);
-    linkedListInt_print(TO_NODE &list);
-    linkedListInt_remove_item(TO_NODE &list, to_remove);
+    linked_list_int_print(TO_NODE &list);
+    linked_list_int_remove_item(TO_NODE &list, to_remove);
     printf("after %d removal list is: ", to_remove);
-    linkedListInt_print(TO_NODE &list);
+    linked_list_int_print(TO_NODE &list);
 }
 // -----------------doubly linked list ---------------------
 
-DLinkedListNode *init_doubly_linked_list()
+d_linked_list_node *init_doubly_linked_list()
 {
-    DLinkedListNode* list = dLinkedListInt_create_new(9);
-    dLinkedList_append(TO_DL_NODE &list, TO_DL_NODE dLinkedListInt_create_new(5));
-    dLinkedList_append(TO_DL_NODE &list, TO_DL_NODE  dLinkedListInt_create_new(2));
-    dLinkedList_append(TO_DL_NODE &list, TO_DL_NODE  dLinkedListInt_create_new(1));
-    dLinkedList_append(TO_DL_NODE &list, TO_DL_NODE  dLinkedListInt_create_new(4));
+    d_linked_list_node* list = d_linked_list_int_create_new(9);
+    d_linked_list_append(TO_DL_NODE &list, TO_DL_NODE d_linked_list_int_create_new(5));
+    d_linked_list_append(TO_DL_NODE &list, TO_DL_NODE  d_linked_list_int_create_new(2));
+    d_linked_list_append(TO_DL_NODE &list, TO_DL_NODE  d_linked_list_int_create_new(1));
+    d_linked_list_append(TO_DL_NODE &list, TO_DL_NODE  d_linked_list_int_create_new(4));
     return list;
 }
 
-void test_dLinkedList()
+void test_d_linked_list()
 {
     printf("\n");
     puts("########## DOUBLY LINKED LIST ##########");
     printf("[test]\n");
-    test_dLinkedList_print();
+    test_d_linked_list_print();
     printf("[test]\n");
-    test_dLinkedList_get_tail();
+    test_d_linked_list_get_tail();
     printf("[test]\n");
-    test_dLinkedList_remove_item();
+    test_d_linked_list_remove_item();
     printf("[test]\n");
-    test_dLinkedList_insert_before();
+    test_d_linked_list_insert_before();
     printf("[test]\n");
-    test_dLinkedList_insert_after();
+    test_d_linked_list_insert_after();
     printf("[test]\n");
-    test_dLinkedList_shuffle();
+    test_d_linked_list_shuffle();
 }
 
-void test_dLinkedList_get_tail()
+void test_d_linked_list_get_tail()
 {
-    DLinkedListInt *list = init_doubly_linked_list();
-    DLinkedListInt *tail = dLinkedList_get_tail(&list);
+    d_linked_list_int_t *list = init_doubly_linked_list();
+    d_linked_list_int_t *tail = d_linked_list_get_tail(&list);
     printf("tail is: %d\n", tail->data);
 }
 
-void test_dLinkedList_print()
+void test_d_linked_list_print()
 {
-    DLinkedListInt *list = init_doubly_linked_list();
+    d_linked_list_int_t *list = init_doubly_linked_list();
     printf("full list is: ");
-    dLinkedListInt_print(&list);
+    d_linked_list_int_print(&list);
 }
 
-void test_dLinkedList_remove_item()
+void test_d_linked_list_remove_item()
 {
     int to_remove = 5;
-    DLinkedListInt *list = init_doubly_linked_list();
+    d_linked_list_int_t *list = init_doubly_linked_list();
     printf("before %d removal list is: ", to_remove);
-    dLinkedListInt_print(&list);
-    dLinkedListInt_remove_item(&list, to_remove);
+    d_linked_list_int_print(&list);
+    d_linked_list_int_remove_item(&list, to_remove);
     printf("after %d removal list is: ", to_remove);
-    dLinkedListInt_print(&list);
+    d_linked_list_int_print(&list);
 }
 
-void test_dLinkedList_insert_before()
+void test_d_linked_list_insert_before()
 {
     int to_insert = 10, before_this = 5;
-    DLinkedListInt *list = init_doubly_linked_list();
-    DLinkedListInt *item = dLinkedListInt_create_new(to_insert);
+    d_linked_list_int_t *list = init_doubly_linked_list();
+    d_linked_list_int_t *item = d_linked_list_int_create_new(to_insert);
     printf("inserting %d before %d\n", to_insert, before_this);
-    dLinkedListInt_insert_before(&list, item, before_this);
+    d_linked_list_int_insert_before(&list, item, before_this);
     printf("list after insertion is: ");
-    dLinkedListInt_print(&list);
+    d_linked_list_int_print(&list);
 }
 
-void test_dLinkedList_insert_after()
+void test_d_linked_list_insert_after()
 {
     int to_insert = 10, after_this = 5;
-    DLinkedListInt *list = init_doubly_linked_list();
-    DLinkedListInt *item = dLinkedListInt_create_new(to_insert);
+    d_linked_list_int_t *list = init_doubly_linked_list();
+    d_linked_list_int_t *item = d_linked_list_int_create_new(to_insert);
     printf("inserting %d after %d\n", to_insert, after_this);
-    dLinkedListInt_insert_after(&list, item, after_this);
+    d_linked_list_int_insert_after(&list, item, after_this);
     printf("list after insertion is: ");
-    dLinkedListInt_print(&list);
+    d_linked_list_int_print(&list);
 }
 
-void test_dLinkedList_shuffle()
+void test_d_linked_list_shuffle()
 {
-    DLinkedListInt *list = init_doubly_linked_list();
+    d_linked_list_int_t *list = init_doubly_linked_list();
     printf("List before shuffling: ");
-    dLinkedListInt_print(&list);
-    dLinkedList_shuffle(&list);
+    d_linked_list_int_print(&list);
+    d_linked_list_shuffle(&list);
     printf("List after shuffling: ");
-    dLinkedListInt_print(&list);
+    d_linked_list_int_print(&list);
 }
 
 //--------------------- SETS ------------------------
 
-SetTable *init_set()
+set_table_t *init_set()
 {
-    SetTable *table = set_table_new(4);
+    set_table_t *table = set_table_new(4);
     set_insert(table, "Parma", strlen("Parma"));
     set_insert(table, "Milano", strlen("Milano"));
     set_insert(table, "Firenze", strlen("Firenze"));
@@ -205,9 +205,9 @@ void test_set()
 
 void test_set_search()
 {
-    SetTable *table = init_set();
+    set_table_t *table = init_set();
     char *string = "Milano";
-    SetNode *found = set_search(table, string, strlen(string));
+    set_node_t *found = set_search(table, string, strlen(string));
 
     if(found)
         printf("%s key found!\n", found->key);
@@ -243,9 +243,9 @@ void test_set_search()
 
 void test_set_removal()
 {
-    SetTable *table = init_set();
+    set_table_t *table = init_set();
     printf("set collisions = %d\n", table->_collisions);
-    SetNode *found = set_search(table, "Milano", strlen("Milano"));
+    set_node_t *found = set_search(table, "Milano", strlen("Milano"));
     int removed = set_remove_key(table, "Milano", strlen("Milano"));
     found = set_search(table, "Milano", strlen("Milano"));
     if(!found)
@@ -258,11 +258,11 @@ void test_set_removal()
 }
 //--------------------- DICTIONARY ------------------------
 
-Dictionary *init_dictionary()
+dictionary_t *init_dictionary()
 {
     //forcing collisions
-    Dictionary *dict = dictionary_new(2);
-    Data data;
+    dictionary_t *dict = dictionary_new(2);
+    data_t data;
     data.bytes_4 = 8;
     char *string = "byte";
     dictionary_insert(dict, string, strlen(string), data);
@@ -294,9 +294,9 @@ void test_dictionary()
 
 void test_dictionary_search()
 {
-    Dictionary *d = init_dictionary();
+    dictionary_t *d = init_dictionary();
     char *string = "byte";
-    DictionaryNode* node = dictionary_search(d, string, strlen(string));
+    dictionary_node_t* node = dictionary_search(d, string, strlen(string));
     if(node)
     {
         printf("key = %s, data = %d\n", string, node->data);
@@ -323,13 +323,13 @@ void test_dictionary_search()
 
 void test_dictionary_removal()
 {
-    Dictionary *d = init_dictionary();
+    dictionary_t *d = init_dictionary();
     printf("set collisions = %d\n", (TO_SET d)->_collisions);
     char *string = "2bytes";
     printf("removing \"%s\" key from dictionary...\n", string);
     int result = dictionary_remove_key(d, string, strlen(string));
     printf("removal ended with %d\n", result);
-    DictionaryNode *node = dictionary_search(d, string, strlen(string));
+    dictionary_node_t *node = dictionary_search(d, string, strlen(string));
     if(node)
     {
         printf("\"%s\" key found\n", (TO_SET_NODE node)->key);

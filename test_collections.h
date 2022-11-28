@@ -1,19 +1,19 @@
 //linked list
-void test_linkedList();
-void test_linkedList_reverse();
-void test_linkedList_get_tail();
-void test_linkedList_print();
-void test_linkedList_pop();
-void test_linkedList_dequeue();
-void test_linkedList_remove_item();
+void test_linked_list();
+void test_linked_list_reverse();
+void test_linked_list_get_tail();
+void test_linked_list_print();
+void test_linked_list_pop();
+void test_linked_list_dequeue();
+void test_linked_list_remove_item();
 //doubly linked list
-void test_dLinkedList();
-void test_dLinkedList_get_tail();
-void test_dLinkedList_remove_item();
-void test_dLinkedList_print();
-void test_dLinkedList_insert_before();
-void test_dLinkedList_insert_after();
-void test_dLinkedList_shuffle();
+void test_d_linked_list();
+void test_d_linked_list_get_tail();
+void test_d_linked_list_remove_item();
+void test_d_linked_list_print();
+void test_d_linked_list_insert_before();
+void test_d_linked_list_insert_after();
+void test_d_linked_list_shuffle();
 //set
 void test_set();
 void test_set_search();
