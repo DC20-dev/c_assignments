@@ -181,7 +181,7 @@ void test_d_linked_list_shuffle()
 
 set_table_t *init_set()
 {
-    set_table_t *table = set_table_new(4);
+    set_table_t *table = set_table_new(3);
     set_insert(table, "Parma", strlen("Parma"));
     set_insert(table, "Milano", strlen("Milano"));
     set_insert(table, "Firenze", strlen("Firenze"));
@@ -244,6 +244,7 @@ void test_set_search()
 void test_set_removal()
 {
     set_table_t *table = init_set();
+    printf("set hashmap size: %d\n",table->hashmap_size);
     printf("set collisions = %d\n", table->_collisions);
     set_node_t *found = set_search(table, "Milano", strlen("Milano"));
     int removed = set_remove_key(table, "Milano", strlen("Milano"));
