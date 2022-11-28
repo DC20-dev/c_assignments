@@ -560,6 +560,7 @@ int _rehash(set_table_t *table, const size_t size_of_table, const size_t size_of
 #endif
         }
     }
+    free(table->nodes);
     free(table);
     *table = *new_table;
     return 1;
