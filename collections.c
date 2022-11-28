@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define TO_NODE (linked_list_node_t *)
-#define TO_DL_NODE (d_linked_list_node *)
+#define TO_DL_NODE (d_linked_list_node_t *)
 #define TO_SET_NODE (set_node_t *)
 #define TO_SET (set_table_t *)
 #define TO_DICT_NODE (dictionary_node_t *)
@@ -180,16 +180,16 @@ typedef struct d_linked_list_node
     struct d_linked_list_node *next;
     struct d_linked_list_node *previous;
 
-} d_linked_list_node;
+} d_linked_list_node_t;
 
-d_linked_list_node *d_linked_list_get_tail(d_linked_list_node **head)
+d_linked_list_node_t *d_linked_list_get_tail(d_linked_list_node_t **head)
 {
     return TO_DL_NODE linked_list_get_tail(TO_NODE head);
 }
 
-d_linked_list_node *d_linked_list_append(d_linked_list_node **head, d_linked_list_node *item)
+d_linked_list_node_t *d_linked_list_append(d_linked_list_node_t **head, d_linked_list_node_t *item)
 {
-    d_linked_list_node *tail = d_linked_list_get_tail(head);
+    d_linked_list_node_t *tail = d_linked_list_get_tail(head);
     if (!tail)
     {
         *head = item;
@@ -206,7 +206,7 @@ d_linked_list_node *d_linked_list_append(d_linked_list_node **head, d_linked_lis
 // node with value
 typedef struct d_linked_list_int
 {
-    d_linked_list_node node;
+    d_linked_list_node_t node;
     int data;
 
 } d_linked_list_int_t;
@@ -225,14 +225,14 @@ d_linked_list_int_t *d_linked_list_int_create_new(const int value)
 }
 
 // remove item exercise
-int d_linked_list_int_remove_item(d_linked_list_node **head, const int item)
+int d_linked_list_int_remove_item(d_linked_list_node_t **head, const int item)
 {
-    d_linked_list_node *current = TO_DL_NODE * head;
+    d_linked_list_node_t *current = TO_DL_NODE * head;
     while (current)
     {
         if (((d_linked_list_int_t *)current)->data == item)
         {
-            d_linked_list_node *prev = current->previous;
+            d_linked_list_node_t *prev = current->previous;
             prev->next = current->next;
             if (current->next)
             {
@@ -251,7 +251,7 @@ int d_linked_list_int_remove_item(d_linked_list_node **head, const int item)
 
 void d_linked_list_int_print(d_linked_list_int_t **head)
 {
-    d_linked_list_node *current = TO_NODE * head;
+    d_linked_list_node_t *current = TO_NODE * head;
     printf("[");
     while (current)
     {
@@ -268,12 +268,12 @@ void d_linked_list_int_print(d_linked_list_int_t **head)
 // insert before exercise
 int d_linked_list_int_insert_before(d_linked_list_int_t **head, d_linked_list_int_t *item, const int before_this)
 {
-    d_linked_list_node *current = TO_DL_NODE * head;
+    d_linked_list_node_t *current = TO_DL_NODE * head;
     while (current)
     {
         if (((d_linked_list_int_t *)current)->data == before_this)
         {
-            d_linked_list_node *prev = current->previous;
+            d_linked_list_node_t *prev = current->previous;
             prev->next = item;
             (TO_DL_NODE item)->previous = prev;
             (TO_DL_NODE item)->next = current;
@@ -290,7 +290,7 @@ int d_linked_list_int_insert_before(d_linked_list_int_t **head, d_linked_list_in
 // insert after exercise
 int d_linked_list_int_insert_after(d_linked_list_int_t **head, d_linked_list_int_t *item, const int after_this)
 {
-    d_linked_list_node *current = TO_DL_NODE * head;
+    d_linked_list_node_t *current = TO_DL_NODE * head;
     while (current)
     {
         if (((d_linked_list_int_t *)current)->data == after_this)
@@ -311,10 +311,10 @@ int d_linked_list_int_insert_after(d_linked_list_int_t **head, d_linked_list_int
     return 0;
 }
 
-int d_linked_list_shuffle(d_linked_list_node **head)
+int d_linked_list_shuffle(d_linked_list_node_t **head)
 {
     const size_t len = linked_list_get_len(head);
-    d_linked_list_node ** nodes = calloc(len, sizeof(d_linked_list_node *));
+    d_linked_list_node_t ** nodes = calloc(len, sizeof(d_linked_list_node_t *));
     if(!nodes)
     {
         return 0;
@@ -330,7 +330,7 @@ int d_linked_list_shuffle(d_linked_list_node **head)
         //clamps the number between i and len
         const size_t new_index = (rand()% (len - i)) + i;
         //swap the two pointers
-        d_linked_list_node * temp = nodes[new_index];
+        d_linked_list_node_t * temp = nodes[new_index];
         nodes[new_index] = nodes[i];
         nodes[i] = temp;
     }

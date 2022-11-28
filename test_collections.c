@@ -92,9 +92,9 @@ void test_linked_list_remove_item()
 }
 // -----------------doubly linked list ---------------------
 
-d_linked_list_node *init_doubly_linked_list()
+d_linked_list_node_t *init_doubly_linked_list()
 {
-    d_linked_list_node* list = d_linked_list_int_create_new(9);
+    d_linked_list_node_t* list = d_linked_list_int_create_new(9);
     d_linked_list_append(TO_DL_NODE &list, TO_DL_NODE d_linked_list_int_create_new(5));
     d_linked_list_append(TO_DL_NODE &list, TO_DL_NODE  d_linked_list_int_create_new(2));
     d_linked_list_append(TO_DL_NODE &list, TO_DL_NODE  d_linked_list_int_create_new(1));
