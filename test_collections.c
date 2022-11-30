@@ -183,14 +183,14 @@ void test_d_linked_list_shuffle()
 set_table_t *init_set()
 {
     set_table_t *table = set_table_new(3);
-    set_insert(table, "Parma", strlen("Parma"));
-    set_insert(table, "Milano", strlen("Milano"));
-    set_insert(table, "Firenze", strlen("Firenze"));
-    set_insert(table, "Lucca", strlen("Lucca"));
-    set_insert(table, "Vicenza", strlen("Vicenza"));
-    set_insert(table, "Padova", strlen("Padova"));
-    set_insert(table, "Palermo", strlen("Palermo"));
-    set_insert(table, "Pisa", strlen("Pisa"));
+    set_insert(&table, "Parma", strlen("Parma"));
+    set_insert(&table, "Milano", strlen("Milano"));
+    set_insert(&table, "Firenze", strlen("Firenze"));
+    set_insert(&table, "Lucca", strlen("Lucca"));
+    set_insert(&table, "Vicenza", strlen("Vicenza"));
+    set_insert(&table, "Padova", strlen("Padova"));
+    set_insert(&table, "Palermo", strlen("Palermo"));
+    set_insert(&table, "Pisa", strlen("Pisa"));
     return table;
 }
 
@@ -248,11 +248,11 @@ void test_set_removal()
     printf("set hashmap size: %d\n",(int)table->hashmap_size);
     printf("set collisions = %d\n", table->_collisions);
     set_node_t *found = set_search(table, "Milano", strlen("Milano"));
-    int removed = set_remove_key(table, "Milano", strlen("Milano"));
+    int removed = set_remove_key(&table, "Milano", strlen("Milano"));
     found = set_search(table, "Milano", strlen("Milano"));
     if(!found)
         printf("Milano key removed\n");
-    removed = set_remove_key(table, "Vicenza", strlen("Vicenza"));
+    removed = set_remove_key(&table, "Vicenza", strlen("Vicenza"));
     found = set_search(table, "Vicenza", strlen("Vicenza"));
     if(!found)
         printf("Vicenza key removed\n");
@@ -267,19 +267,19 @@ dictionary_t *init_dictionary()
     data_t data;
     data.bytes_4 = 8;
     char *string = "byte";
-    dictionary_insert(dict, string, strlen(string), data);
+    dictionary_insert(&dict, string, strlen(string), data);
     string = "2bytes";
     data.bytes_4 = 16;
-    dictionary_insert(dict, string, strlen(string), data);
+    dictionary_insert(&dict, string, strlen(string), data);
     string = "4bytes";
     data.bytes_4 = 32;
-    dictionary_insert(dict, string, strlen(string), data);
+    dictionary_insert(&dict, string, strlen(string), data);
     string = "8bytes";
     data.bytes_4 = 64;
-    dictionary_insert(dict, string, strlen(string), data);
+    dictionary_insert(&dict, string, strlen(string), data);
     string = "16bytes";
     data.bytes_4 = 128;
-    dictionary_insert(dict, string, strlen(string), data);
+    dictionary_insert(&dict, string, strlen(string), data);
 
     return dict;
 }
@@ -329,7 +329,7 @@ void test_dictionary_removal()
     printf("set collisions = %d\n", (TO_SET d)->_collisions);
     char *string = "2bytes";
     printf("removing \"%s\" key from dictionary...\n", string);
-    int result = dictionary_remove_key(d, string, strlen(string));
+    int result = dictionary_remove_key(&d, string, strlen(string));
     printf("removal ended with %d\n", result);
     dictionary_node_t *node = dictionary_search(d, string, strlen(string));
     if(node)

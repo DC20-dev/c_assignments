@@ -12,13 +12,19 @@
 #define TO_DL_NODE_INT (d_linked_list_int_t *)
 #define TO_SET_NODE (set_node_t *)
 #define TO_SET (set_table_t *)
+#define TO_SET_ADDR (set_table_t **)
 #define TO_DICT_NODE (dictionary_node_t *)
 
+//Use data to store up to 8 bytes; use the correct size in both reading and writing
 typedef union data
 {
+    //use this for chars
     uint8_t byte;
+    //use for short values
     uint16_t bytes_2;
+    //use for int, float
     uint32_t bytes_4;
+    //use for long long int, double and pointers
     uint64_t bytes_8;
 } data_t;
 
@@ -377,7 +383,7 @@ size_t djb33x_hash(const char *key, const size_t keylen)
     return hash;
 }
 
-int _rehash(set_table_t *table, const size_t size_of_table, const size_t size_of_element);
+int _rehash(set_table_t **table, const size_t size_of_table, const size_t size_of_element);
 
 set_table_t *set_table_new(const size_t hashmap_size)
 {
@@ -396,10 +402,10 @@ set_table_t *set_table_new(const size_t hashmap_size)
     return table;
 }
 
-set_node_t *set_insert(set_table_t *table, const char *key, const size_t key_len)
+set_node_t *set_insert(set_table_t **table, const char *key, const size_t key_len)
 {
     // check on collisions and rehash if necessary
-    if (table->hashmap_size * 0.75f <= table->_collisions)
+    if ((*table)->hashmap_size * 0.75f <= (*table)->_collisions)
     {
 #ifdef C_DEBUG
         printf("\"%s\" triggered rehashing!\n", key);
@@ -408,20 +414,20 @@ set_node_t *set_insert(set_table_t *table, const char *key, const size_t key_len
         _rehash(table, sizeof(set_table_t), sizeof(set_node_t *));
     }
     const size_t hash = djb33x_hash(key, key_len);
-    const size_t index = hash % table->hashmap_size;
-    linked_list_node_t *head = table->nodes[index];
+    const size_t index = hash % (*table)->hashmap_size;
+    linked_list_node_t *head = (*table)->nodes[index];
     if (!head)
     {
-        table->nodes[index] = malloc(sizeof(set_node_t));
-        if (!table->nodes[index])
+        (*table)->nodes[index] = malloc(sizeof(set_node_t));
+        if (!(*table)->nodes[index])
         {
             return NULL;
         }
-        (TO_SET_NODE table->nodes[index])->key = key;
-        (TO_SET_NODE table->nodes[index])->key_len = key_len;
-        table->nodes[index]->next = NULL;
+        (TO_SET_NODE (*table)->nodes[index])->key = key;
+        (TO_SET_NODE (*table)->nodes[index])->key_len = key_len;
+        (*table)->nodes[index]->next = NULL;
 
-        return TO_SET_NODE table->nodes[index];
+        return TO_SET_NODE (*table)->nodes[index];
     }
 
     set_node_t *new_item = malloc(sizeof(set_node_t));
@@ -445,7 +451,7 @@ set_node_t *set_insert(set_table_t *table, const char *key, const size_t key_len
         tail = head;
         head = head->next;
     }
-    table->_collisions++;
+    (*table)->_collisions++;
     tail->next = TO_NODE new_item;
     return new_item;
 }
@@ -476,11 +482,11 @@ set_node_t *set_search(set_table_t *table, const char *key, const size_t key_len
     return NULL;
 }
 
-int set_remove_key(set_table_t *table, const char *key, const size_t key_len)
+int set_remove_key(set_table_t **table, const char *key, const size_t key_len)
 {
     const size_t hash = djb33x_hash(key, key_len);
-    const size_t index = hash % table->hashmap_size;
-    linked_list_node_t *head = table->nodes[index];
+    const size_t index = hash % (*table)->hashmap_size;
+    linked_list_node_t *head = (*table)->nodes[index];
     if (!head)
     {
         // no elements with this hash
@@ -490,20 +496,20 @@ int set_remove_key(set_table_t *table, const char *key, const size_t key_len)
     {
         if (head->next)
         {
-            table->_collisions--;
+            (*table)->_collisions--;
         }
         // first element in list
         head = head->next;
-        free(table->nodes[index]);
-        table->nodes[index] = head;
+        free((*table)->nodes[index]);
+        (*table)->nodes[index] = head;
         return 1;
     }
-    linked_list_node_t *prev = table->nodes[index];
+    linked_list_node_t *prev = (*table)->nodes[index];
     while (head)
     {
         if ((TO_SET_NODE head)->key == key)
         {
-            table->_collisions--;
+            (*table)->_collisions--;
             prev->next = head->next;
             free(head);
             return 1;
@@ -516,7 +522,7 @@ int set_remove_key(set_table_t *table, const char *key, const size_t key_len)
     return 0;
 }
 
-int _rehash(set_table_t *table, const size_t size_of_table, const size_t size_of_element)
+int _rehash(set_table_t **table, const size_t size_of_table, const size_t size_of_element)
 {
     // allocate
     set_table_t *new_table = malloc(size_of_table);
@@ -525,20 +531,20 @@ int _rehash(set_table_t *table, const size_t size_of_table, const size_t size_of
         return 0;
     }
     new_table->_collisions = 0;
-    new_table->hashmap_size = table->hashmap_size * 2;
+    new_table->hashmap_size = (*table)->hashmap_size * 2;
     new_table->nodes = calloc(new_table->hashmap_size, size_of_element);
-    if (!table->nodes)
+    if (!(*table)->nodes)
     {
         free(new_table);
         return 0;
     }
 
-    for (size_t i = 0; i < table->hashmap_size; i++)
+    for (size_t i = 0; i < (*table)->hashmap_size; i++)
     {
-        while (table->nodes[i])
+        while ((*table)->nodes[i])
         {
             // pop from list using list function
-            linked_list_node_t *current = linked_list_pop(&table->nodes[i]);
+            linked_list_node_t *current = linked_list_pop(&(*table)->nodes[i]);
 #ifdef C_DEBUG
             printf("current = %s\n", (TO_SET_NODE current)->key);
 #endif
@@ -566,9 +572,9 @@ int _rehash(set_table_t *table, const size_t size_of_table, const size_t size_of
 #endif
         }
     }
-    free(table->nodes);
-    free(table);
-    *table = *new_table;
+    free((*table)->nodes);
+    free((*table));
+    *table = new_table;
     return 1;
 }
 
@@ -604,32 +610,32 @@ dictionary_t *dictionary_new(const size_t hashmap_size)
     return table;
 }
 
-dictionary_node_t *dictionary_insert(dictionary_t *table, const char *key, const size_t key_len, const data_t data)
+dictionary_node_t *dictionary_insert(dictionary_t **table, const char *key, const size_t key_len, const data_t data)
 {
-    if ((TO_SET table)->hashmap_size * 0.75f <= (TO_SET table)->_collisions)
+    if ((TO_SET (*table))->hashmap_size * 0.75f <= (TO_SET (*table))->_collisions)
     {
 #ifdef C_DEBUG
         printf("\"%s\" triggered rehashing!\n", key);
 #endif
         // load factor is hardcoded and arbitrary
-        _rehash(TO_SET table, sizeof(dictionary_t), sizeof(dictionary_node_t *));
+        _rehash(TO_SET_ADDR table, sizeof(dictionary_t), sizeof(dictionary_node_t *));
     }
     const size_t hash = djb33x_hash(key, key_len);
-    const size_t index = hash % (TO_SET table)->hashmap_size;
-    linked_list_node_t *head = (TO_SET table)->nodes[index];
+    const size_t index = hash % (TO_SET (*table))->hashmap_size;
+    linked_list_node_t *head = (TO_SET (*table))->nodes[index];
     if (!head)
     {
-        (TO_SET table)->nodes[index] = malloc(sizeof(dictionary_node_t));
-        if (!(TO_SET table)->nodes[index])
+        (TO_SET (*table))->nodes[index] = malloc(sizeof(dictionary_node_t));
+        if (!(TO_SET (*table))->nodes[index])
         {
             return NULL;
         }
-        (TO_SET_NODE(TO_SET table)->nodes[index])->key = key;
-        (TO_SET_NODE(TO_SET table)->nodes[index])->key_len = key_len;
-        (TO_DICT_NODE(TO_SET table)->nodes[index])->data = data;
-        (TO_SET table)->nodes[index]->next = NULL;
+        (TO_SET_NODE(TO_SET (*table))->nodes[index])->key = key;
+        (TO_SET_NODE(TO_SET (*table))->nodes[index])->key_len = key_len;
+        (TO_DICT_NODE(TO_SET (*table))->nodes[index])->data = data;
+        (TO_SET (*table))->nodes[index]->next = NULL;
 
-        return TO_DICT_NODE (TO_SET table)->nodes[index];
+        return TO_DICT_NODE (TO_SET (*table))->nodes[index];
     }
 
     dictionary_node_t *new_item = malloc(sizeof(dictionary_node_t));
@@ -656,7 +662,7 @@ dictionary_node_t *dictionary_insert(dictionary_t *table, const char *key, const
     }
 
     tail->next = TO_NODE new_item;
-    (TO_SET table)->_collisions++;
+    (TO_SET (*table))->_collisions++;
     return new_item;
 }
 
@@ -665,7 +671,7 @@ dictionary_node_t *dictionary_search(dictionary_t *table, const char *key, const
     return TO_DICT_NODE set_search(TO_SET table, key, key_len);
 }
 
-int dictionary_remove_key(dictionary_t *table, const char *key, const size_t key_len)
+int dictionary_remove_key(dictionary_t **table, const char *key, const size_t key_len)
 {
-    return set_remove_key(TO_SET table, key, key_len);
+    return set_remove_key(TO_SET_ADDR table, key, key_len);
 }
