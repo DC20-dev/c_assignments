@@ -1,6 +1,7 @@
 #include "collections.c"
 #include "test_collections.h"
 #include <string.h>
+#include <time.h>
 
 int main(int argc, char** argv)
 {
@@ -33,8 +34,8 @@ void test_linked_list()
 linked_list_int_t *init_linked_list()
 {
     linked_list_int_t* list = linked_list_int_create_new(1);
-    linked_list_append(TO_NODE &list, TO_NODE linked_list_int_create_new(2));
-    linked_list_append(TO_NODE &list, TO_NODE linked_list_int_create_new(3));
+    linked_list_append(TO_NODE_ADDR &list, TO_NODE linked_list_int_create_new(2));
+    linked_list_append(TO_NODE_ADDR &list, TO_NODE linked_list_int_create_new(3));
     return list;
 }
 
@@ -42,21 +43,21 @@ void test_linked_list_print()
 {
     linked_list_int_t* list = init_linked_list();
     printf("full list is: ");
-    linked_list_int_print(TO_NODE &list);
+    linked_list_int_print(TO_NODE_INT_ADDR &list);
 }
 
 void test_linked_list_reverse()
 {
     linked_list_int_t* list = init_linked_list();
     printf("reversed list is: ");
-    list = linked_list_reverse(TO_NODE &list);
+    list = TO_NODE_INT linked_list_reverse(TO_NODE_ADDR &list);
     linked_list_int_print(&list);
 }
 
 void test_linked_list_get_tail()
 {
     linked_list_int_t *list = init_linked_list();
-    linked_list_int_t *tail = linked_list_get_tail(TO_NODE &list);
+    linked_list_int_t *tail = TO_NODE_INT linked_list_get_tail(TO_NODE_ADDR &list);
     printf("tail is = %d\n", tail->data);
 }
 
@@ -64,20 +65,20 @@ void test_linked_list_pop()
 {
     linked_list_int_t* list = init_linked_list();
     printf("before pop list is: ");
-    linked_list_int_print(TO_NODE &list);
-    linked_list_pop(TO_NODE &list);
+    linked_list_int_print(TO_NODE_INT_ADDR &list);
+    linked_list_pop(TO_NODE_ADDR &list);
     printf("after pop list is: ");
-    linked_list_int_print(TO_NODE &list);
+    linked_list_int_print(TO_NODE_INT_ADDR &list);
 }
 
 void test_linked_list_dequeue()
 {
     linked_list_int_t* list = init_linked_list();
     printf("before dequeue list is: ");
-    linked_list_int_print(TO_NODE &list);
-    linked_list_dequeue(TO_NODE &list);
+    linked_list_int_print(TO_NODE_INT_ADDR &list);
+    linked_list_dequeue(TO_NODE_ADDR &list);
     printf("after dequeue list is: ");
-    linked_list_int_print(TO_NODE &list);
+    linked_list_int_print(TO_NODE_INT_ADDR &list);
 }
 
 void test_linked_list_remove_item()
@@ -85,21 +86,21 @@ void test_linked_list_remove_item()
     int to_remove = 2;
     linked_list_int_t* list = init_linked_list();
     printf("before %d removal list is: ", to_remove);
-    linked_list_int_print(TO_NODE &list);
-    linked_list_int_remove_item(TO_NODE &list, to_remove);
+    linked_list_int_print(TO_NODE_INT_ADDR &list);
+    linked_list_int_remove_item(TO_NODE_INT_ADDR &list, to_remove);
     printf("after %d removal list is: ", to_remove);
-    linked_list_int_print(TO_NODE &list);
+    linked_list_int_print(TO_NODE_INT_ADDR &list);
 }
 // -----------------doubly linked list ---------------------
 
-d_linked_list_node_t *init_doubly_linked_list()
+d_linked_list_int_t *init_doubly_linked_list()
 {
-    d_linked_list_node_t* list = d_linked_list_int_create_new(9);
-    d_linked_list_append(TO_DL_NODE &list, TO_DL_NODE d_linked_list_int_create_new(5));
-    d_linked_list_append(TO_DL_NODE &list, TO_DL_NODE  d_linked_list_int_create_new(2));
-    d_linked_list_append(TO_DL_NODE &list, TO_DL_NODE  d_linked_list_int_create_new(1));
-    d_linked_list_append(TO_DL_NODE &list, TO_DL_NODE  d_linked_list_int_create_new(4));
-    return list;
+    d_linked_list_node_t* list = TO_DL_NODE d_linked_list_int_create_new(9);
+    d_linked_list_append(TO_DL_NODE_ADDR &list, TO_DL_NODE d_linked_list_int_create_new(5));
+    d_linked_list_append(TO_DL_NODE_ADDR &list, TO_DL_NODE d_linked_list_int_create_new(2));
+    d_linked_list_append(TO_DL_NODE_ADDR &list, TO_DL_NODE d_linked_list_int_create_new(1));
+    d_linked_list_append(TO_DL_NODE_ADDR &list, TO_DL_NODE d_linked_list_int_create_new(4));
+    return TO_DL_NODE_INT list;
 }
 
 void test_d_linked_list()
@@ -123,7 +124,7 @@ void test_d_linked_list()
 void test_d_linked_list_get_tail()
 {
     d_linked_list_int_t *list = init_doubly_linked_list();
-    d_linked_list_int_t *tail = d_linked_list_get_tail(&list);
+    d_linked_list_int_t *tail = TO_DL_NODE_INT d_linked_list_get_tail( TO_DL_NODE_ADDR &list);
     printf("tail is: %d\n", tail->data);
 }
 
@@ -140,7 +141,7 @@ void test_d_linked_list_remove_item()
     d_linked_list_int_t *list = init_doubly_linked_list();
     printf("before %d removal list is: ", to_remove);
     d_linked_list_int_print(&list);
-    d_linked_list_int_remove_item(&list, to_remove);
+    d_linked_list_int_remove_item(TO_DL_NODE_ADDR &list, to_remove);
     printf("after %d removal list is: ", to_remove);
     d_linked_list_int_print(&list);
 }
@@ -172,7 +173,7 @@ void test_d_linked_list_shuffle()
     d_linked_list_int_t *list = init_doubly_linked_list();
     printf("List before shuffling: ");
     d_linked_list_int_print(&list);
-    d_linked_list_shuffle(&list);
+    d_linked_list_shuffle(TO_DL_NODE_ADDR &list);
     printf("List after shuffling: ");
     d_linked_list_int_print(&list);
 }
@@ -244,7 +245,7 @@ void test_set_search()
 void test_set_removal()
 {
     set_table_t *table = init_set();
-    printf("set hashmap size: %d\n",table->hashmap_size);
+    printf("set hashmap size: %d\n",(int)table->hashmap_size);
     printf("set collisions = %d\n", table->_collisions);
     set_node_t *found = set_search(table, "Milano", strlen("Milano"));
     int removed = set_remove_key(table, "Milano", strlen("Milano"));
@@ -300,13 +301,13 @@ void test_dictionary_search()
     dictionary_node_t* node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("key = %s, data = %d\n", string, node->data);
+        printf("key = %s, data = %d\n", string, (int)node->data.bytes_4);
     }
     string = "2bytes";
     node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("key = %s, data = %d\n", string, node->data);
+        printf("key = %s, data = %d\n", string, (int)node->data.bytes_4);
     }
     string = "3bytes";
     node = dictionary_search(d, string, strlen(string));
@@ -318,7 +319,7 @@ void test_dictionary_search()
     node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("key = %s, data = %d\n", string, node->data);
+        printf("key = %s, data = %d\n", string, (int)node->data.bytes_4);
     }
 }
 

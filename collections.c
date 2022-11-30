@@ -4,7 +4,12 @@
 #include <stdint.h>
 
 #define TO_NODE (linked_list_node_t *)
+#define TO_NODE_ADDR (linked_list_node_t **)
+#define TO_NODE_INT (linked_list_int_t *)
+#define TO_NODE_INT_ADDR (linked_list_int_t **)
 #define TO_DL_NODE (d_linked_list_node_t *)
+#define TO_DL_NODE_ADDR (d_linked_list_node_t **)
+#define TO_DL_NODE_INT (d_linked_list_int_t *)
 #define TO_SET_NODE (set_node_t *)
 #define TO_SET (set_table_t *)
 #define TO_DICT_NODE (dictionary_node_t *)
@@ -184,7 +189,7 @@ typedef struct d_linked_list_node
 
 d_linked_list_node_t *d_linked_list_get_tail(d_linked_list_node_t **head)
 {
-    return TO_DL_NODE linked_list_get_tail(TO_NODE head);
+    return TO_DL_NODE linked_list_get_tail(TO_NODE_ADDR head);
 }
 
 d_linked_list_node_t *d_linked_list_append(d_linked_list_node_t **head, d_linked_list_node_t *item)
@@ -251,7 +256,7 @@ int d_linked_list_int_remove_item(d_linked_list_node_t **head, const int item)
 
 void d_linked_list_int_print(d_linked_list_int_t **head)
 {
-    d_linked_list_node_t *current = TO_NODE * head;
+    d_linked_list_node_t *current = TO_DL_NODE * head;
     printf("[");
     while (current)
     {
@@ -274,10 +279,10 @@ int d_linked_list_int_insert_before(d_linked_list_int_t **head, d_linked_list_in
         if (((d_linked_list_int_t *)current)->data == before_this)
         {
             d_linked_list_node_t *prev = current->previous;
-            prev->next = item;
+            prev->next = TO_DL_NODE item;
             (TO_DL_NODE item)->previous = prev;
             (TO_DL_NODE item)->next = current;
-            current->previous = item;
+            current->previous = TO_DL_NODE item;
             return 1;
         }
 
@@ -297,10 +302,10 @@ int d_linked_list_int_insert_after(d_linked_list_int_t **head, d_linked_list_int
         {
             (TO_DL_NODE item)->next = current->next;
             (TO_DL_NODE item)->previous = current;
-            current->next = item;
+            current->next = TO_DL_NODE item;
             if (current->next)
             {
-                (TO_DL_NODE item)->next->previous = item;
+                (TO_DL_NODE item)->next->previous = TO_DL_NODE item;
             }
             return 1;
         }
@@ -313,7 +318,7 @@ int d_linked_list_int_insert_after(d_linked_list_int_t **head, d_linked_list_int
 
 int d_linked_list_shuffle(d_linked_list_node_t **head)
 {
-    const size_t len = linked_list_get_len(head);
+    const size_t len = linked_list_get_len(TO_NODE_ADDR head);
     d_linked_list_node_t **nodes = calloc(len, sizeof(d_linked_list_node_t *));
     if (!nodes)
     {
@@ -322,7 +327,7 @@ int d_linked_list_shuffle(d_linked_list_node_t **head)
     for (size_t i = 0; i < len; i++)
     {
         // granted that is len because already calculated, not possible to go off list
-        nodes[i] = linked_list_pop(head);
+        nodes[i] =TO_DL_NODE linked_list_pop(TO_NODE_ADDR head);
     }
     // now shuffle this array using Fisher&Yates algorithm
     for (size_t i = 0; i < len - 1; i++)
@@ -416,7 +421,7 @@ set_node_t *set_insert(set_table_t *table, const char *key, const size_t key_len
         (TO_SET_NODE table->nodes[index])->key_len = key_len;
         table->nodes[index]->next = NULL;
 
-        return table->nodes[index];
+        return TO_SET_NODE table->nodes[index];
     }
 
     set_node_t *new_item = malloc(sizeof(set_node_t));
@@ -441,7 +446,8 @@ set_node_t *set_insert(set_table_t *table, const char *key, const size_t key_len
         head = head->next;
     }
     table->_collisions++;
-    tail->next = new_item;
+    tail->next = TO_NODE new_item;
+    return new_item;
 }
 
 set_node_t *set_search(set_table_t *table, const char *key, const size_t key_len)
@@ -461,7 +467,7 @@ set_node_t *set_search(set_table_t *table, const char *key, const size_t key_len
         // check collision list
         if ((TO_SET_NODE head)->key == key)
         {
-            return head;
+            return TO_SET_NODE head;
         }
         head = head->next;
     }
@@ -556,7 +562,7 @@ int _rehash(set_table_t *table, const size_t size_of_table, const size_t size_of
                 new_table->_collisions++;
             }
 #ifdef C_DEBUG
-            printf("new_table->nodes[%d] = %s\n", index, (TO_SET_NODE new_table->nodes[index])->key);
+            printf("new_table->nodes[%zu] = %s\n", index, (TO_SET_NODE new_table->nodes[index])->key);
 #endif
         }
     }
@@ -606,7 +612,7 @@ dictionary_node_t *dictionary_insert(dictionary_t *table, const char *key, const
         printf("\"%s\" triggered rehashing!\n", key);
 #endif
         // load factor is hardcoded and arbitrary
-        _rehash(table, sizeof(dictionary_t), sizeof(dictionary_node_t *));
+        _rehash(TO_SET table, sizeof(dictionary_t), sizeof(dictionary_node_t *));
     }
     const size_t hash = djb33x_hash(key, key_len);
     const size_t index = hash % (TO_SET table)->hashmap_size;
@@ -623,7 +629,7 @@ dictionary_node_t *dictionary_insert(dictionary_t *table, const char *key, const
         (TO_DICT_NODE(TO_SET table)->nodes[index])->data = data;
         (TO_SET table)->nodes[index]->next = NULL;
 
-        return (TO_SET table)->nodes[index];
+        return TO_DICT_NODE (TO_SET table)->nodes[index];
     }
 
     dictionary_node_t *new_item = malloc(sizeof(dictionary_node_t));
@@ -649,16 +655,17 @@ dictionary_node_t *dictionary_insert(dictionary_t *table, const char *key, const
         head = head->next;
     }
 
-    tail->next = new_item;
+    tail->next = TO_NODE new_item;
     (TO_SET table)->_collisions++;
+    return new_item;
 }
 
 dictionary_node_t *dictionary_search(dictionary_t *table, const char *key, const size_t key_len)
 {
-    return TO_DICT_NODE set_search(table, key, key_len);
+    return TO_DICT_NODE set_search(TO_SET table, key, key_len);
 }
 
 int dictionary_remove_key(dictionary_t *table, const char *key, const size_t key_len)
 {
-    return set_remove_key(table, key, key_len);
+    return set_remove_key(TO_SET table, key, key_len);
 }
