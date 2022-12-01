@@ -184,6 +184,15 @@ void linked_list_int_print(linked_list_int_t **head)
     printf("]\n");
 }
 
+void linked_list_delete(linked_list_node_t **head)
+{
+    linked_list_node_t *current;
+    while ((current = linked_list_pop(head)))
+    {
+        free(current);
+    }
+}
+
 //-------------- Doubly Linked List --------------------
 
 typedef struct d_linked_list_node
@@ -196,6 +205,20 @@ typedef struct d_linked_list_node
 d_linked_list_node_t *d_linked_list_get_tail(d_linked_list_node_t **head)
 {
     return TO_DL_NODE linked_list_get_tail(TO_NODE_ADDR head);
+}
+
+d_linked_list_node_t *d_linked_list_pop(d_linked_list_node_t **head)
+{
+    d_linked_list_node_t *current = *head;
+    if (!current)
+    {
+        return NULL;
+    }
+    *head = (*head)->next;
+    (*head)->previous = NULL;
+    current->next = NULL;
+
+    return current;
 }
 
 d_linked_list_node_t *d_linked_list_append(d_linked_list_node_t **head, d_linked_list_node_t *item)
@@ -355,6 +378,11 @@ int d_linked_list_shuffle(d_linked_list_node_t **head)
     return 1;
 }
 
+void d_linked_list_delete(d_linked_list_node_t **head)
+{
+    linked_list_delete(TO_NODE_ADDR head);
+}
+
 //------------------- SETS ---------------------
 
 typedef struct set_node
@@ -393,6 +421,7 @@ set_table_t *set_table_new(const size_t hashmap_size)
         return NULL;
     }
     table->hashmap_size = hashmap_size;
+    table->_collisions = 0;
     table->nodes = calloc(table->hashmap_size, sizeof(set_node_t *));
     if (!table->nodes)
     {
@@ -578,6 +607,21 @@ int _rehash(set_table_t **table, const size_t size_of_table, const size_t size_o
     return 1;
 }
 
+void set_delete(set_table_t **table)
+{
+    //empty collision lists
+    for (size_t i = 0; i < (*table)->hashmap_size; i++)
+    {
+        linked_list_node_t *current;
+        while ((current = linked_list_pop(&(*table)->nodes[i])))
+        {
+            free(current);
+        }
+    }
+    free((*table)->nodes);//hashtable
+    free(*table);//structure
+}
+
 //-------------- DICTIONARY -----------------
 
 typedef struct dic_node
@@ -674,4 +718,9 @@ dictionary_node_t *dictionary_search(dictionary_t *table, const char *key, const
 int dictionary_remove_key(dictionary_t **table, const char *key, const size_t key_len)
 {
     return set_remove_key(TO_SET_ADDR table, key, key_len);
+}
+
+void dictionary_delete(dictionary_t **table)
+{
+    set_delete(TO_SET_ADDR table);
 }

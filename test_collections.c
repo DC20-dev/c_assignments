@@ -44,6 +44,7 @@ void test_linked_list_print()
     linked_list_int_t* list = init_linked_list();
     printf("full list is: ");
     linked_list_int_print(TO_NODE_INT_ADDR &list);
+    linked_list_delete(TO_NODE_ADDR &list);
 }
 
 void test_linked_list_reverse()
@@ -52,6 +53,7 @@ void test_linked_list_reverse()
     printf("reversed list is: ");
     list = TO_NODE_INT linked_list_reverse(TO_NODE_ADDR &list);
     linked_list_int_print(&list);
+    linked_list_delete(TO_NODE_ADDR&list);
 }
 
 void test_linked_list_get_tail()
@@ -59,6 +61,7 @@ void test_linked_list_get_tail()
     linked_list_int_t *list = init_linked_list();
     linked_list_int_t *tail = TO_NODE_INT linked_list_get_tail(TO_NODE_ADDR &list);
     printf("tail is = %d\n", tail->data);
+    linked_list_delete(TO_NODE_ADDR&list);
 }
 
 void test_linked_list_pop()
@@ -69,6 +72,7 @@ void test_linked_list_pop()
     linked_list_pop(TO_NODE_ADDR &list);
     printf("after pop list is: ");
     linked_list_int_print(TO_NODE_INT_ADDR &list);
+    linked_list_delete(TO_NODE_ADDR&list);
 }
 
 void test_linked_list_dequeue()
@@ -79,6 +83,7 @@ void test_linked_list_dequeue()
     linked_list_dequeue(TO_NODE_ADDR &list);
     printf("after dequeue list is: ");
     linked_list_int_print(TO_NODE_INT_ADDR &list);
+    linked_list_delete(TO_NODE_ADDR&list);
 }
 
 void test_linked_list_remove_item()
@@ -90,6 +95,7 @@ void test_linked_list_remove_item()
     linked_list_int_remove_item(TO_NODE_INT_ADDR &list, to_remove);
     printf("after %d removal list is: ", to_remove);
     linked_list_int_print(TO_NODE_INT_ADDR &list);
+    linked_list_delete(TO_NODE_ADDR&list);
 }
 // -----------------doubly linked list ---------------------
 
@@ -126,6 +132,7 @@ void test_d_linked_list_get_tail()
     d_linked_list_int_t *list = init_doubly_linked_list();
     d_linked_list_int_t *tail = TO_DL_NODE_INT d_linked_list_get_tail( TO_DL_NODE_ADDR &list);
     printf("tail is: %d\n", tail->data);
+    d_linked_list_delete(TO_DL_NODE_ADDR &list);
 }
 
 void test_d_linked_list_print()
@@ -133,6 +140,7 @@ void test_d_linked_list_print()
     d_linked_list_int_t *list = init_doubly_linked_list();
     printf("full list is: ");
     d_linked_list_int_print(&list);
+    d_linked_list_delete(TO_DL_NODE_ADDR &list);
 }
 
 void test_d_linked_list_remove_item()
@@ -144,6 +152,7 @@ void test_d_linked_list_remove_item()
     d_linked_list_int_remove_item(TO_DL_NODE_ADDR &list, to_remove);
     printf("after %d removal list is: ", to_remove);
     d_linked_list_int_print(&list);
+    d_linked_list_delete(TO_DL_NODE_ADDR &list);
 }
 
 void test_d_linked_list_insert_before()
@@ -155,6 +164,7 @@ void test_d_linked_list_insert_before()
     d_linked_list_int_insert_before(&list, item, before_this);
     printf("list after insertion is: ");
     d_linked_list_int_print(&list);
+    d_linked_list_delete(TO_DL_NODE_ADDR &list);
 }
 
 void test_d_linked_list_insert_after()
@@ -166,6 +176,7 @@ void test_d_linked_list_insert_after()
     d_linked_list_int_insert_after(&list, item, after_this);
     printf("list after insertion is: ");
     d_linked_list_int_print(&list);
+    d_linked_list_delete(TO_DL_NODE_ADDR &list);
 }
 
 void test_d_linked_list_shuffle()
@@ -176,6 +187,7 @@ void test_d_linked_list_shuffle()
     d_linked_list_shuffle(TO_DL_NODE_ADDR &list);
     printf("List after shuffling: ");
     d_linked_list_int_print(&list);
+    d_linked_list_delete(TO_DL_NODE_ADDR &list);
 }
 
 //--------------------- SETS ------------------------
@@ -240,6 +252,7 @@ void test_set_search()
     else
         printf("%s key not found...\n", string);
 
+    set_delete(&table);
 }
 
 void test_set_removal()
@@ -257,6 +270,8 @@ void test_set_removal()
     if(!found)
         printf("Vicenza key removed\n");
     printf("set collisions = %d\n", table->_collisions);
+
+    set_delete(&table);
 }
 //--------------------- DICTIONARY ------------------------
 
@@ -321,13 +336,15 @@ void test_dictionary_search()
     {
         printf("key = %s, data = %d\n", string, (int)node->data.bytes_4);
     }
+
+    dictionary_delete(&d);
 }
 
 void test_dictionary_removal()
 {
     dictionary_t *d = init_dictionary();
     printf("set collisions = %d\n", (TO_SET d)->_collisions);
-    char *string = "2bytes";
+    char *string = "4bytes";
     printf("removing \"%s\" key from dictionary...\n", string);
     int result = dictionary_remove_key(&d, string, strlen(string));
     printf("removal ended with %d\n", result);
@@ -340,4 +357,6 @@ void test_dictionary_removal()
         printf("\"%s\" key removed successfully!\n", string);
     }
     printf("set collisions = %d\n", (TO_SET d)->_collisions);
+
+    dictionary_delete(&d);
 }
