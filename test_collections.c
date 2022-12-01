@@ -1,6 +1,5 @@
 #include "collections.c"
 #include "test_collections.h"
-#include <string.h>
 #include <time.h>
 
 int main(int argc, char** argv)
@@ -10,6 +9,8 @@ int main(int argc, char** argv)
     test_d_linked_list();
     test_set();
     test_dictionary();
+    test_list();
+    return 0;
 }
 
 // --------------------- linked list ----------------------
@@ -359,4 +360,87 @@ void test_dictionary_removal()
     printf("set collisions = %d\n", (TO_SET d)->_collisions);
 
     dictionary_delete(&d);
+}
+// ---------------------- LIST -------------------------
+
+void test_list()
+{
+    printf("\n");
+    puts("########## LIST ##########");
+    printf("[test]\n");
+    test_list_get();
+    printf("[test]\n");
+    test_list_remove();
+    printf("[test]\n");
+    test_list_pop();
+    printf("[test]\n");
+    test_list_copy();
+    printf("[test]\n");
+    test_list_insert();    
+}
+
+list_t *init_list()
+{
+    list_t *list = list_new(10);
+    data_t data;
+    for (int i = 0; i < 10; i++)
+    {
+        data.bytes_4 = i;
+        list_append(&list, data);
+    }
+    return list; 
+} 
+void test_list_get()
+{
+    list_t *list = init_list();
+    data_t data = list_get(&list, 8);
+    printf("data at index = 8: %d\n", (int)data.bytes_4);
+    list_delete(&list);
+}
+void test_list_insert()
+{
+    list_t *list = init_list();
+    data_t data;
+    data.bytes_4 = 69;
+    list_insert(&list, 1, data);
+    printf("inserted value at index 1 is: \"%d\"\n", list_get(&list, 1).bytes_4);
+    printf("new size is: %zu\n", list->_allocated_size);
+    printf("last value is: %d at index: %zu\n", (int)list_get(&list, list->_current_size-1).bytes_4, list->_current_size-1);
+    list_print(list);
+    list_delete(&list);
+}
+
+void test_list_remove()
+{
+    list_t *list = init_list();
+    printf("list before removal at index 4: ");
+    list_print(list);
+    list_remove(&list, 4);
+    printf("list after removal at index 4: ");
+    list_print(list);
+    list_remove(&list, 8);
+    printf("list after removal of last element: ");
+    list_print(list);
+    list_delete(&list);
+}
+
+void test_list_pop()
+{
+    list_t *list = init_list();
+    printf("list before pop: ");
+    list_print(list);
+    data_t data = list_pop(&list);
+    printf("popped item: %d\n", (int)data.bytes_8);
+    printf("list after pop: ");
+    list_print(list);
+    list_delete(&list);
+}
+void test_list_copy()
+{
+    list_t *list = init_list();
+    list_t *copy = list_copy(&list);
+    printf("this is a copy of list: ");
+    list_print(copy);
+    list_delete(&list);
+    list_delete(&copy);
 }

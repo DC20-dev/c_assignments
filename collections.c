@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 #define TO_NODE (linked_list_node_t *)
 #define TO_NODE_ADDR (linked_list_node_t **)
@@ -24,11 +25,13 @@ typedef union data
     uint16_t bytes_2;
     //use for int, float
     uint32_t bytes_4;
-    //use for long long int, double and pointers
+    //use for long long int, double
     uint64_t bytes_8;
+    //for pointers
+    void* pointer;
 } data_t;
 
-//--------------- Linked List ---------------------
+//--------------- LINKED LIST ---------------------
 
 typedef struct linked_list_node
 {
@@ -193,7 +196,7 @@ void linked_list_delete(linked_list_node_t **head)
     }
 }
 
-//-------------- Doubly Linked List --------------------
+//-------------- DOUBLY LINKED LIST --------------------
 
 typedef struct d_linked_list_node
 {
@@ -723,4 +726,137 @@ int dictionary_remove_key(dictionary_t **table, const char *key, const size_t ke
 void dictionary_delete(dictionary_t **table)
 {
     set_delete(TO_SET_ADDR table);
+}
+
+// -------------------- DYNAMIC ARRAY -----------------------
+
+typedef struct list
+{
+    size_t _current_size;
+    size_t _allocated_size;
+    data_t *data;
+
+}list_t;
+
+list_t *list_new(size_t size)
+{
+    if(!size)
+    {
+        size = 10;        
+    }
+    list_t *list = malloc(sizeof(list_t));
+    list->_allocated_size = size;
+    list->_current_size = 0;
+    list->data = calloc(size, sizeof(data_t));
+    return list;
+}
+
+static int _list_extend_size(list_t **list)
+{
+    data_t *new_data = realloc((*list)->data, sizeof(data_t)* ((*list)->_allocated_size * 2));
+    if(!new_data)
+    {
+        return 0;
+    }
+    (*list)->data = new_data;
+    (*list)->_allocated_size*=2;
+    return 1;
+}
+
+int list_append(list_t **list, data_t value)
+{
+    if((*list)->_current_size >= (*list)->_allocated_size)
+    {
+        if(!_list_extend_size(list))
+        {
+            return 0;
+        }
+    }
+    (*list)->data[(*list)->_current_size] = value;
+    (*list)->_current_size++;
+    return 1;
+}
+
+data_t list_get(list_t **list, size_t index)
+{
+    if(index >= (*list)->_current_size)
+    {
+        data_t data;
+        data.bytes_8 = 0;
+        return data;
+    }
+    return(*list)->data[index];
+}
+
+size_t list_len(list_t *list)
+{
+    return list->_current_size;
+}
+
+int list_insert(list_t **list, size_t index, data_t value)
+{
+    if((*list)->_current_size >= (*list)->_allocated_size)
+    {
+        if(!_list_extend_size(list))
+        {
+            return 0;
+        }
+    }
+    //moves the following elements 1 cell ahead
+    memmove((*list)->data + index + 1, (*list)->data + index, 
+    sizeof(data_t) * ((*list)->_current_size - index));
+    (*list)->data[index] = value;
+    (*list)->_current_size++;
+    return 1;
+}
+
+int list_remove(list_t** list, size_t index)
+{
+    if(index >= (*list)->_current_size)
+    {
+        return 0;
+    }
+    memmove((*list)->data + index, (*list)->data + index + 1, 
+    sizeof(data_t) * ((*list)->_current_size - index));
+    (*list)->_current_size--;
+    data_t data;
+    data.bytes_8 = 0;
+    (*list)->data[(*list)->_current_size] = data;
+    return 1;
+}
+
+data_t list_pop(list_t **list)
+{
+    data_t data = list_get(list, 0);
+    list_remove(list, 0);
+    return data;
+}
+
+list_t *list_copy(list_t **list)
+{
+    list_t *copy = list_new((*list)->_current_size);
+    copy->_current_size = (*list)->_current_size;
+    memcpy(copy->data, (*list)->data, (sizeof(data_t)) * (copy->_current_size));
+    return copy;
+}
+
+void list_print(list_t *list)
+{
+    printf("[ ");
+    for (size_t i = 0; i < list->_current_size; i++)
+    {
+        printf("%d ",list->data[i].bytes_4);
+        if (i != list->_current_size-1)
+        {
+            printf(", ");
+        }
+    }
+    printf("]\n");
+}
+
+//deallocates the given list
+void list_delete(list_t **list)
+{
+    free((*list)->data);
+    free((*list));
 }
