@@ -1,58 +1,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
-
-#define TO_NODE (linked_list_node_t *)
-#define TO_NODE_ADDR (linked_list_node_t **)
-#define TO_NODE_INT (linked_list_int_t *)
-#define TO_NODE_INT_ADDR (linked_list_int_t **)
-#define TO_DL_NODE (d_linked_list_node_t *)
-#define TO_DL_NODE_ADDR (d_linked_list_node_t **)
-#define TO_DL_NODE_INT (d_linked_list_int_t *)
-#define TO_SET_NODE (set_node_t *)
-#define TO_SET (set_table_t *)
-#define TO_SET_ADDR (set_table_t **)
-#define TO_DICT_NODE (dictionary_node_t *)
-
-//Use data to store up to 8 bytes; use the correct size in both reading and writing
-typedef union data
-{
-    //use this for chars
-    char char_v;
-    //use for short values
-    short short_v;
-    //use for int, float
-    int int_v;
-    float float_v;
-    //use for long long int, double
-    long long int llint_v;
-    double double_v;
-    //for pointers
-    void* pointer_v;
-    char* bytes_v;
-} data_t;
-
-typedef enum type
-{
-    char_t = 0,
-    short_t,
-    int_t,
-    float_t,
-    llint_t,
-    double_t,
-    ptr_t,
-    bytes_t
-} type_t;
+#include "collections.h"
 
 //--------------- LINKED LIST ---------------------
-
-typedef struct linked_list_node
-{
-    struct linked_list_node *next;
-
-} linked_list_node_t;
 
 linked_list_node_t *linked_list_get_tail(linked_list_node_t **head)
 {
@@ -145,14 +97,6 @@ linked_list_node_t *linked_list_reverse(linked_list_node_t **head)
     return prev;
 }
 
-// node with value
-typedef struct linked_list_int
-{
-    linked_list_node_t *node;
-    int data;
-
-} linked_list_int_t;
-
 linked_list_int_t *linked_list_int_create_new(const int value)
 {
     linked_list_int_t *new_item = malloc(sizeof(linked_list_int_t));
@@ -213,13 +157,6 @@ void linked_list_delete(linked_list_node_t **head)
 
 //-------------- DOUBLY LINKED LIST --------------------
 
-typedef struct d_linked_list_node
-{
-    struct d_linked_list_node *next;
-    struct d_linked_list_node *previous;
-
-} d_linked_list_node_t;
-
 d_linked_list_node_t *d_linked_list_get_tail(d_linked_list_node_t **head)
 {
     return TO_DL_NODE linked_list_get_tail(TO_NODE_ADDR head);
@@ -255,13 +192,6 @@ d_linked_list_node_t *d_linked_list_append(d_linked_list_node_t **head, d_linked
 
     return item;
 }
-// node with value
-typedef struct d_linked_list_int
-{
-    d_linked_list_node_t node;
-    int data;
-
-} d_linked_list_int_t;
 
 d_linked_list_int_t *d_linked_list_int_create_new(const int value)
 {
@@ -403,21 +333,6 @@ void d_linked_list_delete(d_linked_list_node_t **head)
 
 //------------------- SETS ---------------------
 
-typedef struct set_node
-{
-    linked_list_node_t *next;
-    size_t key_len;
-    const char *key;
-
-} set_node_t;
-
-typedef struct set_table
-{
-    linked_list_node_t **nodes;
-    size_t hashmap_size;
-    int _collisions;
-} set_table_t;
-
 size_t djb33x_hash(const char *key, const size_t keylen)
 {
     size_t hash = 5381;
@@ -428,8 +343,6 @@ size_t djb33x_hash(const char *key, const size_t keylen)
     }
     return hash;
 }
-
-int _rehash(set_table_t **table, const size_t size_of_table, const size_t size_of_element);
 
 set_table_t *set_table_new(const size_t hashmap_size)
 {
@@ -642,18 +555,6 @@ void set_delete(set_table_t **table)
 
 //-------------- DICTIONARY -----------------
 
-typedef struct dic_node
-{
-    set_node_t node;
-    data_t data;
-
-} dictionary_node_t;
-
-typedef struct dic
-{
-    set_table_t table;
-} dictionary_t;
-
 dictionary_t *dictionary_new(const size_t hashmap_size)
 {
     dictionary_t *table = malloc(sizeof(dictionary_t));
@@ -744,14 +645,6 @@ void dictionary_delete(dictionary_t **table)
 }
 
 // -------------------- DYNAMIC ARRAY -----------------------
-
-typedef struct list
-{
-    size_t _current_size;
-    size_t _allocated_size;
-    data_t *data;
-
-}list_t;
 
 list_t *list_new(size_t size)
 {
@@ -860,7 +753,7 @@ void list_print(list_t *list)
     printf("[ ");
     for (size_t i = 0; i < list->_current_size; i++)
     {
-        printf("%d ",list->data[i].llint_v);
+        printf("%d ",list->data[i].int_v);
         if (i != list->_current_size-1)
         {
             printf(", ");
