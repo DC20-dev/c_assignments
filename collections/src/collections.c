@@ -770,7 +770,7 @@ void list_print(list_t *list)
     printf("[ ");
     for (size_t i = 0; i < list->_current_size; i++)
     {
-        printf("%d ",TO_INT list->data[i]);
+        printf("%d ",TO_(int) list->data[i]);
         if (i != list->_current_size-1)
         {
             printf(", ");

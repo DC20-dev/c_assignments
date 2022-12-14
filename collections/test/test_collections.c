@@ -1,6 +1,9 @@
-#include "collections.c"
+#include "collections.h"
 #include "test_collections.h"
 #include <time.h>
+#include <stdio.h>
+#include <string.h>
+# include <stdlib.h>
 
 int main(int argc, char** argv)
 {
@@ -316,13 +319,13 @@ void test_dictionary_search()
     dictionary_node_t* node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("key = %s, data = %d\n", string, TO_INT node->data);
+        printf("key = %s, data = %d\n", string, TO_(int) node->data);
     }
     string = "2bytes";
     node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("key = %s, data = %d\n", string, TO_INT node->data);
+        printf("key = %s, data = %d\n", string, TO_(int) node->data);
     }
     string = "3bytes";
     node = dictionary_search(d, string, strlen(string));
@@ -334,7 +337,7 @@ void test_dictionary_search()
     node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("key = %s, data = %d\n", string, TO_INT node->data);
+        printf("key = %s, data = %d\n", string, TO_(int) node->data);
     }
 
     dictionary_delete(&d);
@@ -390,7 +393,7 @@ list_t *init_list()
 void test_list_get()
 {
     list_t *list = init_list();
-    int data = TO_INT list_get(&list, 8);
+    int data = TO_(int) list_get(&list, 8);
     printf("data at index = 8: %d\n", data);
     list_delete(&list);
 }
@@ -399,9 +402,9 @@ void test_list_insert()
     list_t *list = init_list();
     int n = 69;
     list_insert(&list, 1, &n, sizeof(int));
-    printf("inserted value at index 1 is: \"%d\"\n", TO_INT list_get(&list, 1));
+    printf("inserted value at index 1 is: \"%d\"\n", TO_(int) list_get(&list, 1));
     printf("new size is: %zu\n", list->_allocated_size);
-    printf("last value is: %d at index: %zu\n", TO_INT list_get(&list, list->_current_size-1), list->_current_size-1);
+    printf("last value is: %d at index: %zu\n", TO_(int) list_get(&list, list->_current_size-1), list->_current_size-1);
     list_print(list);
     list_delete(&list);
 }
@@ -425,7 +428,7 @@ void test_list_pop()
     list_t *list = init_list();
     printf("list before pop: ");
     list_print(list);
-    int data = TO_INT list_pop(&list);
+    int data = TO_(int) list_pop(&list);
     printf("popped item: %d\n", data);
     printf("list after pop: ");
     list_print(list);

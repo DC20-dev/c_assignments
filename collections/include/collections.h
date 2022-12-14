@@ -11,20 +11,7 @@
 #define TO_SET_ADDR (set_table_t **)
 #define TO_DICT_NODE (dictionary_node_t *)
 
-#define TO_CHAR *(char*)
-#define TO_UCHAR *(unsigned char*)
-#define TO_SHORT *(short*)
-#define TO_USHORT *(unsigned short*)
-#define TO_INT *(int*)
-#define TO_UINT *(unsigned int*)
-#define TO_LONG *(long*)
-#define TO_ULONG *(unsigned long*)
-#define TO_LONGLONG *(long long*)
-#define TO_ULONGLONG *(unsigned long long*)
-#define TO_FLOAT *(float*)
-#define TO_DOUBLE *(double*)
-#define TO_STRING *(char**)
-
+#define TO_(type) *(type*)
 //--------------- LINKED LIST ---------------------
 
 typedef struct linked_list_node
