@@ -23,6 +23,7 @@
 #define TO_ULONGLONG *(unsigned long long*)
 #define TO_FLOAT *(float*)
 #define TO_DOUBLE *(double*)
+#define TO_STRING *(char**)
 
 //--------------- LINKED LIST ---------------------
 
