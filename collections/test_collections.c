@@ -280,22 +280,21 @@ dictionary_t *init_dictionary()
 {
     //forcing collisions
     dictionary_t *dict = dictionary_new(2);
-    data_t data;
-    data.int_v = 8;
+    int n = 8;
     char *string = "byte";
-    dictionary_insert(&dict, string, strlen(string), data);
+    dictionary_insert(&dict, string, strlen(string), &n, sizeof(int));
+    n = 16;
     string = "2bytes";
-    data.int_v = 16;
-    dictionary_insert(&dict, string, strlen(string), data);
+    dictionary_insert(&dict, string, strlen(string), &n, sizeof(int));
+    n = 32;
     string = "4bytes";
-    data.int_v = 32;
-    dictionary_insert(&dict, string, strlen(string), data);
+    dictionary_insert(&dict, string, strlen(string), &n, sizeof(int));
+    n = 64;
     string = "8bytes";
-    data.int_v = 64;
-    dictionary_insert(&dict, string, strlen(string), data);
+    dictionary_insert(&dict, string, strlen(string), &n, sizeof(int));
+    n = 128;
     string = "16bytes";
-    data.int_v = 128;
-    dictionary_insert(&dict, string, strlen(string), data);
+    dictionary_insert(&dict, string, strlen(string), &n, sizeof(int));
 
     return dict;
 }
@@ -317,13 +316,13 @@ void test_dictionary_search()
     dictionary_node_t* node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("key = %s, data = %d\n", string, (int)node->data.int_v);
+        printf("key = %s, data = %d\n", string, TO_INT node->data);
     }
     string = "2bytes";
     node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("key = %s, data = %d\n", string, (int)node->data.int_v);
+        printf("key = %s, data = %d\n", string, TO_INT node->data);
     }
     string = "3bytes";
     node = dictionary_search(d, string, strlen(string));
@@ -335,7 +334,7 @@ void test_dictionary_search()
     node = dictionary_search(d, string, strlen(string));
     if(node)
     {
-        printf("key = %s, data = %d\n", string, (int)node->data.int_v);
+        printf("key = %s, data = %d\n", string, TO_INT node->data);
     }
 
     dictionary_delete(&d);
@@ -382,30 +381,27 @@ void test_list()
 list_t *init_list()
 {
     list_t *list = list_new(10);
-    data_t data;
     for (int i = 0; i < 10; i++)
     {
-        data.int_v = i;
-        list_append(&list, data);
+        list_append(&list, &i, sizeof(int));
     }
     return list; 
 } 
 void test_list_get()
 {
     list_t *list = init_list();
-    data_t data = list_get(&list, 8);
-    printf("data at index = 8: %d\n", (int)data.int_v);
+    int data = TO_INT list_get(&list, 8);
+    printf("data at index = 8: %d\n", data);
     list_delete(&list);
 }
 void test_list_insert()
 {
     list_t *list = init_list();
-    data_t data;
-    data.int_v = 69;
-    list_insert(&list, 1, data);
-    printf("inserted value at index 1 is: \"%d\"\n", list_get(&list, 1).int_v);
+    int n = 69;
+    list_insert(&list, 1, &n, sizeof(int));
+    printf("inserted value at index 1 is: \"%d\"\n", TO_INT list_get(&list, 1));
     printf("new size is: %zu\n", list->_allocated_size);
-    printf("last value is: %d at index: %zu\n", (int)list_get(&list, list->_current_size-1).int_v, list->_current_size-1);
+    printf("last value is: %d at index: %zu\n", TO_INT list_get(&list, list->_current_size-1), list->_current_size-1);
     list_print(list);
     list_delete(&list);
 }
@@ -429,8 +425,8 @@ void test_list_pop()
     list_t *list = init_list();
     printf("list before pop: ");
     list_print(list);
-    data_t data = list_pop(&list);
-    printf("popped item: %d\n", (int)data.llint_v);
+    int data = TO_INT list_pop(&list);
+    printf("popped item: %d\n", data);
     printf("list after pop: ");
     list_print(list);
     list_delete(&list);

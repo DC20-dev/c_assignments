@@ -573,7 +573,7 @@ dictionary_t *dictionary_new(const size_t hashmap_size)
     return table;
 }
 
-dictionary_node_t *dictionary_insert(dictionary_t **table, const char *key, const size_t key_len, const data_t data)
+dictionary_node_t *dictionary_insert(dictionary_t **table, const char *key, const size_t key_len, void *data, size_t datasize)
 {
     if ((TO_SET (*table))->hashmap_size * 0.75f <= (TO_SET (*table))->_collisions)
     {
@@ -593,9 +593,12 @@ dictionary_node_t *dictionary_insert(dictionary_t **table, const char *key, cons
         {
             return NULL;
         }
+        // sorry, it's a bit messed up, I still haven't figured out a good solution
         (TO_SET_NODE(TO_SET (*table))->nodes[index])->key = key;
         (TO_SET_NODE(TO_SET (*table))->nodes[index])->key_len = key_len;
-        (TO_DICT_NODE(TO_SET (*table))->nodes[index])->data = data;
+        (TO_DICT_NODE(TO_SET (*table))->nodes[index])->data = malloc(datasize);
+        memcpy((TO_DICT_NODE(TO_SET (*table))->nodes[index])->data,
+        data, datasize);
         (TO_SET (*table))->nodes[index]->next = NULL;
 
         return TO_DICT_NODE (TO_SET (*table))->nodes[index];
@@ -609,7 +612,8 @@ dictionary_node_t *dictionary_insert(dictionary_t **table, const char *key, cons
 
     (TO_SET_NODE new_item)->key = key;
     (TO_SET_NODE new_item)->key_len = key_len;
-    new_item->data = data;
+    new_item->data = malloc(datasize);
+    memcpy(new_item->data, data, datasize);
     (TO_NODE new_item)->next = NULL;
 
     linked_list_node_t *tail = head;
@@ -655,13 +659,13 @@ list_t *list_new(size_t size)
     list_t *list = malloc(sizeof(list_t));
     list->_allocated_size = size;
     list->_current_size = 0;
-    list->data = calloc(size, sizeof(data_t));
+    list->data = calloc(size, sizeof(void*));
     return list;
 }
 
 static int _list_extend_size(list_t **list)
 {
-    data_t *new_data = realloc((*list)->data, sizeof(data_t)* ((*list)->_allocated_size * 2));
+    void **new_data = realloc((*list)->data, sizeof(void*)* ((*list)->_allocated_size * 2));
     if(!new_data)
     {
         return 0;
@@ -671,7 +675,7 @@ static int _list_extend_size(list_t **list)
     return 1;
 }
 
-int list_append(list_t **list, data_t value)
+int list_append(list_t **list, void *value, size_t size)
 {
     if((*list)->_current_size >= (*list)->_allocated_size)
     {
@@ -680,17 +684,18 @@ int list_append(list_t **list, data_t value)
             return 0;
         }
     }
-    (*list)->data[(*list)->_current_size] = value;
+    (*list)->data[(*list)->_current_size] = malloc(size);
+    memcpy((*list)->data[(*list)->_current_size], value, size);
     (*list)->_current_size++;
     return 1;
 }
 
-data_t list_get(list_t **list, size_t index)
+void *list_get(list_t **list, size_t index)
 {
     if(index >= (*list)->_current_size)
     {
-        data_t data;
-        data.llint_v = 0;
+        void *data;
+        data = (void*)0;
         return data;
     }
     return(*list)->data[index];
@@ -701,7 +706,7 @@ size_t list_len(list_t *list)
     return list->_current_size;
 }
 
-int list_insert(list_t **list, size_t index, data_t value)
+int list_insert(list_t **list, size_t index, void *value, size_t size)
 {
     if((*list)->_current_size >= (*list)->_allocated_size)
     {
@@ -712,8 +717,9 @@ int list_insert(list_t **list, size_t index, data_t value)
     }
     //moves the following elements 1 cell ahead
     memmove((*list)->data + index + 1, (*list)->data + index, 
-    sizeof(data_t) * ((*list)->_current_size - index));
-    (*list)->data[index] = value;
+    sizeof(void*) * ((*list)->_current_size - index));
+    (*list)->data[index] = malloc(size);
+    memcpy((*list)->data[index], value, size);
     (*list)->_current_size++;
     return 1;
 }
@@ -725,17 +731,15 @@ int list_remove(list_t** list, size_t index)
         return 0;
     }
     memmove((*list)->data + index, (*list)->data + index + 1, 
-    sizeof(data_t) * ((*list)->_current_size - index));
+    sizeof(void*) * ((*list)->_current_size - index));
     (*list)->_current_size--;
-    data_t data;
-    data.llint_v = 0;
-    (*list)->data[(*list)->_current_size] = data;
+    free((*list)->data[(*list)->_current_size]);
     return 1;
 }
 
-data_t list_pop(list_t **list)
+void *list_pop(list_t **list)
 {
-    data_t data = list_get(list, 0);
+    void* data = list_get(list, 0);
     list_remove(list, 0);
     return data;
 }
@@ -744,7 +748,7 @@ list_t *list_copy(list_t **list)
 {
     list_t *copy = list_new((*list)->_current_size);
     copy->_current_size = (*list)->_current_size;
-    memcpy(copy->data, (*list)->data, (sizeof(data_t)) * (copy->_current_size));
+    memcpy(copy->data, (*list)->data, (sizeof(void*)) * (copy->_current_size));
     return copy;
 }
 
@@ -753,7 +757,7 @@ void list_print(list_t *list)
     printf("[ ");
     for (size_t i = 0; i < list->_current_size; i++)
     {
-        printf("%d ",list->data[i].int_v);
+        printf("%d ",*(int*)list->data[i]);
         if (i != list->_current_size-1)
         {
             printf(", ");

@@ -10,35 +10,19 @@
 #define TO_SET (set_table_t *)
 #define TO_SET_ADDR (set_table_t **)
 #define TO_DICT_NODE (dictionary_node_t *)
-//Use data to store up to 8 bytes; use the correct size in both reading and writing
-typedef union data
-{
-    //use this for chars
-    char char_v;
-    //use for short values
-    short short_v;
-    //use for int, float
-    int int_v;
-    float float_v;
-    //use for long long int, double
-    long long int llint_v;
-    double double_v;
-    //for pointers
-    void* pointer_v;
-    char* bytes_v;
-} data_t;
 
-typedef enum type
-{
-    char_t = 0,
-    short_t,
-    int_t,
-    float_t,
-    llint_t,
-    double_t,
-    ptr_t,
-    bytes_t
-} type_t;
+#define TO_CHAR *(char*)
+#define TO_UCHAR *(unsigned char*)
+#define TO_SHORT *(short*)
+#define TO_USHORT *(unsigned short*)
+#define TO_INT *(int*)
+#define TO_UINT *(unsigned int*)
+#define TO_LONG *(long*)
+#define TO_ULONG *(unsigned long*)
+#define TO_LONGLONG *(long long*)
+#define TO_ULONGLONG *(unsigned long long*)
+#define TO_FLOAT *(float*)
+#define TO_DOUBLE *(double*)
 
 //--------------- LINKED LIST ---------------------
 
@@ -124,7 +108,7 @@ void set_delete(set_table_t **table);
 typedef struct dic_node
 {
     set_node_t node;
-    data_t data;
+    void *data;
 
 } dictionary_node_t;
 
@@ -134,7 +118,7 @@ typedef struct dic
 } dictionary_t;
 
 dictionary_t *dictionary_new(const size_t hashmap_size);
-dictionary_node_t *dictionary_insert(dictionary_t **table, const char *key, const size_t key_len, const data_t data);
+dictionary_node_t *dictionary_insert(dictionary_t **table, const char *key, const size_t key_len, void *data, size_t datasize);
 dictionary_node_t *dictionary_search(dictionary_t *table, const char *key, const size_t key_len);
 int dictionary_remove_key(dictionary_t **table, const char *key, const size_t key_len);
 void dictionary_delete(dictionary_t **table);
@@ -145,18 +129,18 @@ typedef struct list
 {
     size_t _current_size;
     size_t _allocated_size;
-    data_t *data;
+    void **data;
 
 }list_t;
 
 list_t *list_new(size_t size);
 static int _list_extend_size(list_t **list);
-int list_append(list_t **list, data_t value);
-data_t list_get(list_t **list, size_t index);
+int list_append(list_t **list, void *value, size_t size);
+void *list_get(list_t **list, size_t index);
 size_t list_len(list_t *list);
-int list_insert(list_t **list, size_t index, data_t value);
+int list_insert(list_t **list, size_t index, void *value, size_t size);
 int list_remove(list_t** list, size_t index);
-data_t list_pop(list_t **list);
+void *list_pop(list_t **list);
 list_t *list_copy(list_t **list);
 void list_print(list_t *list);
 void list_delete(list_t **list);
