@@ -645,7 +645,18 @@ int dictionary_remove_key(dictionary_t **table, const char *key, const size_t ke
 
 void dictionary_delete(dictionary_t **table)
 {
-    set_delete(TO_SET_ADDR table);
+    //empty collision lists
+    for (size_t i = 0; i < (TO_SET(*table))->hashmap_size; i++)
+    {
+        linked_list_node_t *current;
+        while ((current = linked_list_pop(&(TO_SET(*table))->nodes[i])))
+        {
+            free((TO_DICT_NODE current)->data);
+            free(current);
+        }
+    }
+    free((TO_SET(*table))->nodes);//hashtable
+    free(*table);//structure
 }
 
 // -------------------- DYNAMIC ARRAY -----------------------
@@ -744,11 +755,13 @@ void *list_pop(list_t **list)
     return data;
 }
 
-list_t *list_copy(list_t **list)
+list_t *list_copy(list_t **list, size_t datasize)
 {
     list_t *copy = list_new((*list)->_current_size);
-    copy->_current_size = (*list)->_current_size;
-    memcpy(copy->data, (*list)->data, (sizeof(void*)) * (copy->_current_size));
+    for (size_t i = 0; i < (*list)->_current_size; i++)
+    {
+        list_append(&copy, (*list)->data[i], datasize);
+    }
     return copy;
 }
 
@@ -757,7 +770,7 @@ void list_print(list_t *list)
     printf("[ ");
     for (size_t i = 0; i < list->_current_size; i++)
     {
-        printf("%d ",*(int*)list->data[i]);
+        printf("%d ",TO_INT list->data[i]);
         if (i != list->_current_size-1)
         {
             printf(", ");
@@ -769,6 +782,10 @@ void list_print(list_t *list)
 //deallocates the given list
 void list_delete(list_t **list)
 {
+    for (size_t i = 0; i < (*list)->_current_size; i++)
+    {
+        free((*list)->data[i]);
+    }
     free((*list)->data);
     free((*list));
 }

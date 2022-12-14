@@ -141,6 +141,6 @@ size_t list_len(list_t *list);
 int list_insert(list_t **list, size_t index, void *value, size_t size);
 int list_remove(list_t** list, size_t index);
 void *list_pop(list_t **list);
-list_t *list_copy(list_t **list);
+list_t *list_copy(list_t **list, size_t datasize);
 void list_print(list_t *list);
 void list_delete(list_t **list);

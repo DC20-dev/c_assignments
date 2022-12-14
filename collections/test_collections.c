@@ -434,7 +434,7 @@ void test_list_pop()
 void test_list_copy()
 {
     list_t *list = init_list();
-    list_t *copy = list_copy(&list);
+    list_t *copy = list_copy(&list, sizeof(int));
     printf("this is a copy of list: ");
     list_print(copy);
     list_delete(&list);
