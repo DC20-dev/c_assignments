@@ -686,6 +686,8 @@ static int _list_extend_size(list_t **list)
     return 1;
 }
 
+//pass a pointer to the data that you want to store (ex. int n -> &n);
+//if you want to store an array just pass that (ex char* str -> str).
 int list_append(list_t **list, void *value, size_t size)
 {
     if((*list)->_current_size >= (*list)->_allocated_size)
@@ -701,13 +703,12 @@ int list_append(list_t **list, void *value, size_t size)
     return 1;
 }
 
+//use casting macro TO_(type) only if element is not a pointer
 void *list_get(list_t **list, size_t index)
 {
     if(index >= (*list)->_current_size)
     {
-        void *data;
-        data = (void*)0;
-        return data;
+        return (void*)0;
     }
     return(*list)->data[index];
 }
@@ -717,6 +718,8 @@ size_t list_len(list_t *list)
     return list->_current_size;
 }
 
+//pass a pointer to the data that you want to store (ex. int n -> &n);
+//if you want to store an array just pass that (ex char* str -> str).
 int list_insert(list_t **list, size_t index, void *value, size_t size)
 {
     if((*list)->_current_size >= (*list)->_allocated_size)
