@@ -2,6 +2,7 @@
 
 int main(int argc, char **argv)
 {
-    decode("assets/basn6a08.png");
-    return 0;
+    unsigned char *pixel_bytes;
+    int exit_code = decode("assets/basn6a08.png", &pixel_bytes);
+    return exit_code;
 }
