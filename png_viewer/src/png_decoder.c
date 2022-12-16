@@ -4,35 +4,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+// PNG decoder based off Pyokagan's implementation: https://pyokagan.name/blog/2019-10-14-png/
+// It only supports 8 bit truecolor with alpha
 
-int decode(const char* filepath, unsigned char **out_data)
+int decode(const char* filepath, unsigned char **out_data, uint32_t *out_data_len, uint32_t *out_width, uint32_t *out_height)
 {
     FILE *file = fopen(filepath, "rb");
     if(!file)
     {
         return -1;
     }
-    // get raw file length, remove if not needed
-    if(fseek(file, 0, SEEK_END))
-    {
-        fclose(file);
-        return -1;
-    }
-    const long filesize = ftell(file);
-    //
     const unsigned char png_signature[9] = "\x89PNG\r\n\x1a\n";
     const int signature_len = strlen((const char*)png_signature);
     // allocates 8 bytes + 1 for string termination
     unsigned char file_signature[9];
     file_signature[signature_len] = 0;  // terminating the signature with 0 like a string
 
-    // reset to start, remove if not getting length
-    if(fseek(file, 0, SEEK_SET))
-    {
-        fclose(file);
-        return -1;
-    }
-    //
     const int ret = fread(file_signature, 1, signature_len, file);
     if(ret != signature_len || strcmp((const char*)file_signature, (const char*)png_signature))
     {
@@ -84,13 +71,15 @@ int decode(const char* filepath, unsigned char **out_data)
     }
     // ===== before using it, the pixel data has to be decompressed and reconstructed =========
     unsigned char *reconstructed_pixels;
-    exit_code = _reconstruct_pixel_data(&IDAT_data, width, height, &reconstructed_pixels);
+    exit_code = _reconstruct_pixel_data(&IDAT_data, width, height, &reconstructed_pixels, out_data_len);
     list_delete(&IDAT_data);
     if(exit_code != 0)
     {
         return exit_code;
     }
     *out_data = reconstructed_pixels;
+    *out_width = width;
+    *out_height = height;
     return 0;
 }
 
@@ -231,7 +220,7 @@ static int _process_IDAT(FILE *file, list_t **chunks_data, list_t **chunks_len, 
     return 0;
 }
 
-static int _reconstruct_pixel_data(list_t **compressed_data, uint32_t width, uint32_t height, unsigned char **out_data)
+static int _reconstruct_pixel_data(list_t **compressed_data, uint32_t width, uint32_t height, unsigned char **out_data, uint32_t *out_data_len)
 {
     // convert the byte list to a byte array first
     unsigned long comp_len = (unsigned long)list_len(*compressed_data);
@@ -312,6 +301,7 @@ static int _reconstruct_pixel_data(list_t **compressed_data, uint32_t width, uin
     
     free(uncompressed_data);
     *out_data = reconstructed_data;
+    *out_data_len = stride * height;
     return 0;
 }
 
