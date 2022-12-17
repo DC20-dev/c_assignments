@@ -7,6 +7,9 @@
 // PNG decoder based off Pyokagan's implementation: https://pyokagan.name/blog/2019-10-14-png/
 // It only supports 8 bit truecolor with alpha
 
+// decodes a png file; supported formats are: rgba32
+//
+// returns 0 if the decoding process didn't encounter errors, other values if there was an error
 int decode(const char* filepath, unsigned char **out_data, uint32_t *out_data_len, uint32_t *out_width, uint32_t *out_height)
 {
     FILE *file = fopen(filepath, "rb");
@@ -291,7 +294,7 @@ static int _reconstruct_pixel_data(list_t **compressed_data, uint32_t width, uin
             }
             else
             {
-                return -10;
+                return -1;
             }
             reconstructed_data[appended_count] = reconstructed_x;
             appended_count++;

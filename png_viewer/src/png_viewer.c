@@ -104,7 +104,7 @@ int main(int argc, char **argv)
         SDL_RenderClear(renderer);
         if(draw_texture)
         {
-            SDL_Rect target_rect = {0, 0, width, height};
+            SDL_Rect target_rect = {0, 0, 512, 512};
             SDL_RenderCopy(renderer, texture, NULL, &target_rect);
         }
 
