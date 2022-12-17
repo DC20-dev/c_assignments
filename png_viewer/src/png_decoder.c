@@ -329,26 +329,23 @@ static uint32_t _convert_endianness_uint32(unsigned char *bytes)
 // (or 0 if such a pixel is out of bounds of the image)
 static unsigned char _paeth_predictor(unsigned char a, unsigned char b, unsigned char c)
 {
-    const unsigned char p = a + b - c;
-    const unsigned char pa = abs(p-a);
-    const unsigned char pb = abs(p-b);
-    const unsigned char pc = abs(p-c);
-    unsigned char pr;
+    short p = a + b - c;
+    short pa = abs(p-a);
+    short pb = abs(p-b);
+    short pc = abs(p-c);
 
     if(pa <= pb && pa <= pc)
     {
-        pr = a;
+        return a;
     }
     else if (pb <= pc)
     {
-        pr = b;
+        return b;
     }
     else
     {
-        pr = c;
+        return c;
     }
-
-    return pr;
 }
 
 // Sub pixel filtering type
