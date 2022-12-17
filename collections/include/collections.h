@@ -1,11 +1,17 @@
 
+#ifndef COLLECTIONS_H
+#define COLLECTIONS_H
+
+#define COLL_VER 1.0
+
 #define TO_NODE (linked_list_node_t *)
 #define TO_NODE_ADDR (linked_list_node_t **)
-#define TO_NODE_INT (linked_list_int_t *)
-#define TO_NODE_INT_ADDR (linked_list_int_t **)
+#define TO_LIST (linked_list_t *)
+#define TO_LIST_ADDR (linked_list_t **)
 #define TO_DL_NODE (d_linked_list_node_t *)
 #define TO_DL_NODE_ADDR (d_linked_list_node_t **)
-#define TO_DL_NODE_INT (d_linked_list_int_t *)
+#define TO_DLIST (d_linked_list_t *)
+#define TO_DLIST_ADDR (d_linked_list_t **)
 #define TO_SET_NODE (set_node_t *)
 #define TO_SET (set_table_t *)
 #define TO_SET_ADDR (set_table_t **)
@@ -21,22 +27,22 @@ typedef struct linked_list_node
 } linked_list_node_t;
 
 // node with value
-typedef struct linked_list_int
+typedef struct linked_list
 {
     linked_list_node_t *node;
-    int data;
+    void* data;
 
-} linked_list_int_t;
+} linked_list_t;
 
 linked_list_node_t *linked_list_get_tail(linked_list_node_t **head);
-int linked_list_get_len(linked_list_node_t **head);
+size_t linked_list_get_len(linked_list_node_t **head);
 linked_list_node_t *linked_list_append(linked_list_node_t **head, linked_list_node_t *item);
 linked_list_node_t *linked_list_pop(linked_list_node_t **head);
 linked_list_node_t *linked_list_dequeue(linked_list_node_t **head);
 linked_list_node_t *linked_list_reverse(linked_list_node_t **head);
-linked_list_int_t *linked_list_int_create_new(const int value);
-int linked_list_int_remove_item(linked_list_int_t **head, const int item);
-void linked_list_int_print(linked_list_int_t **head);
+linked_list_t *linked_list_create_new(const void* data, const size_t size);
+int linked_list_remove_item(linked_list_t **head, const void* data, const size_t size);
+void linked_list_delete_node(linked_list_node_t *node_to_delete);
 void linked_list_delete(linked_list_node_t **head);
 
 //-------------- DOUBLY LINKED LIST --------------------
@@ -49,21 +55,21 @@ typedef struct d_linked_list_node
 } d_linked_list_node_t;
 
 // node with value
-typedef struct d_linked_list_int
+typedef struct d_linked_list
 {
     d_linked_list_node_t node;
-    int data;
+    void *data;
 
-} d_linked_list_int_t;
+} d_linked_list_t;
 
 d_linked_list_node_t *d_linked_list_get_tail(d_linked_list_node_t **head);
 d_linked_list_node_t *d_linked_list_append(d_linked_list_node_t **head, d_linked_list_node_t *item);
-d_linked_list_int_t *d_linked_list_int_create_new(const int value);
-int d_linked_list_int_remove_item(d_linked_list_node_t **head, const int item);
-void d_linked_list_int_print(d_linked_list_int_t **head);
-int d_linked_list_int_insert_before(d_linked_list_int_t **head, d_linked_list_int_t *item, const int before_this);
-int d_linked_list_int_insert_after(d_linked_list_int_t **head, d_linked_list_int_t *item, const int after_this);
+d_linked_list_t *d_linked_list_create_new(const void *data, const size_t size);
+int d_linked_list_remove_item(d_linked_list_node_t **head, const void *data, const size_t size);
+int d_linked_list_insert_before(d_linked_list_t **head, d_linked_list_t *item, const void *before_this, const size_t this_size);
+int d_linked_list_insert_after(d_linked_list_t **head, d_linked_list_t *item, const void *after_this, const size_t this_size);
 int d_linked_list_shuffle(d_linked_list_node_t **head);
+void d_linked_list_delete_node(d_linked_list_node_t *node_to_delete);
 void d_linked_list_delete(d_linked_list_node_t **head);
 
 //------------------- SETS ---------------------
@@ -132,3 +138,4 @@ void *list_pop(list_t **list);
 list_t *list_copy(list_t **list, size_t datasize);
 void list_print(list_t *list);
 void list_delete(list_t **list);
+#endif

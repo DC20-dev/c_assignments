@@ -20,11 +20,11 @@ linked_list_node_t *linked_list_get_tail(linked_list_node_t **head)
     return last_node;
 }
 
-int linked_list_get_len(linked_list_node_t **head)
+size_t linked_list_get_len(linked_list_node_t **head)
 {
     linked_list_node_t *current_node = *head;
     linked_list_node_t *last_node = NULL;
-    int count = 0;
+    size_t count = 0;
 
     while (current_node)
     {
@@ -97,29 +97,36 @@ linked_list_node_t *linked_list_reverse(linked_list_node_t **head)
     return prev;
 }
 
-linked_list_int_t *linked_list_int_create_new(const int value)
+linked_list_t *linked_list_create_new(const void* data, size_t size)
 {
-    linked_list_int_t *new_item = malloc(sizeof(linked_list_int_t));
+    linked_list_t *new_item = malloc(sizeof(linked_list_t));
     if (!new_item)
     {
         return NULL;
     }
-    new_item->data = value;
+    new_item->data = malloc(size);
+    if(!new_item->data)
+    {
+        free(new_item);
+        return NULL;
+    }
+    memcpy(new_item->data, data, size);
     new_item->node = NULL;
     return new_item;
 }
 
 // remove item exercise
-int linked_list_int_remove_item(linked_list_int_t **head, const int item)
+int linked_list_remove_item(linked_list_t **head, const void* data, const size_t size)
 {
     linked_list_node_t *current = TO_NODE * head;
     linked_list_node_t *prev = NULL;
     while (current)
     {
-        if (((linked_list_int_t *)current)->data == item)
+        const int equal = memcmp(((linked_list_t *)current)->data, data, size);
+        if (equal == 0)
         {
             prev->next = current->next;
-            free(current);
+            linked_list_delete_node(current);
             return 1;
         }
 
@@ -130,20 +137,11 @@ int linked_list_int_remove_item(linked_list_int_t **head, const int item)
     return 0;
 }
 
-void linked_list_int_print(linked_list_int_t **head)
+
+void linked_list_delete_node(linked_list_node_t *node_to_delete)
 {
-    linked_list_node_t *current = TO_NODE * head;
-    printf("[");
-    while (current)
-    {
-        printf("%d", ((linked_list_int_t *)current)->data);
-        if (current->next)
-        {
-            printf(", ");
-        }
-        current = current->next;
-    }
-    printf("]\n");
+    free((TO_LIST node_to_delete)->data);
+    free(node_to_delete);
 }
 
 void linked_list_delete(linked_list_node_t **head)
@@ -151,7 +149,7 @@ void linked_list_delete(linked_list_node_t **head)
     linked_list_node_t *current;
     while ((current = linked_list_pop(head)))
     {
-        free(current);
+        linked_list_delete_node(current);
     }
 }
 
@@ -193,26 +191,33 @@ d_linked_list_node_t *d_linked_list_append(d_linked_list_node_t **head, d_linked
     return item;
 }
 
-d_linked_list_int_t *d_linked_list_int_create_new(const int value)
+d_linked_list_t *d_linked_list_create_new(const void *data, const size_t size)
 {
-    d_linked_list_int_t *new_item = malloc(sizeof(d_linked_list_int_t));
+    d_linked_list_t *new_item = malloc(sizeof(d_linked_list_t));
     if (!new_item)
     {
         return NULL;
     }
-    new_item->data = value;
+    new_item->data = malloc(size);
+    if(!new_item->data)
+    {
+        free(new_item);
+        return NULL;
+    }
+    memcpy(new_item->data, data, size);
     (TO_DL_NODE new_item)->previous = NULL;
     (TO_DL_NODE new_item)->next = NULL;
     return new_item;
 }
 
 // remove item exercise
-int d_linked_list_int_remove_item(d_linked_list_node_t **head, const int item)
+int d_linked_list_remove_item(d_linked_list_node_t **head, const void *data, const size_t size)
 {
     d_linked_list_node_t *current = TO_DL_NODE * head;
     while (current)
     {
-        if (((d_linked_list_int_t *)current)->data == item)
+        const int equal = memcmp(((d_linked_list_t *)current)->data, data, size);
+        if (equal == 0)
         {
             d_linked_list_node_t *prev = current->previous;
             prev->next = current->next;
@@ -222,6 +227,7 @@ int d_linked_list_int_remove_item(d_linked_list_node_t **head, const int item)
                 // pointer in next node to prev
                 current->next->previous = prev;
             }
+            // use delete node
             free(current);
             return 1;
         }
@@ -231,29 +237,14 @@ int d_linked_list_int_remove_item(d_linked_list_node_t **head, const int item)
     return 0;
 }
 
-void d_linked_list_int_print(d_linked_list_int_t **head)
-{
-    d_linked_list_node_t *current = TO_DL_NODE * head;
-    printf("[");
-    while (current)
-    {
-        printf("%d", ((d_linked_list_int_t *)current)->data);
-        if (current->next)
-        {
-            printf(", ");
-        }
-        current = current->next;
-    }
-    printf("]\n");
-}
-
 // insert before exercise
-int d_linked_list_int_insert_before(d_linked_list_int_t **head, d_linked_list_int_t *item, const int before_this)
+int d_linked_list_insert_before(d_linked_list_t **head, d_linked_list_t *item, const void *before_this, const size_t this_size)
 {
     d_linked_list_node_t *current = TO_DL_NODE * head;
     while (current)
     {
-        if (((d_linked_list_int_t *)current)->data == before_this)
+        const int equal = memcmp(((d_linked_list_t *)current)->data, before_this, this_size);
+        if (equal == 0)
         {
             d_linked_list_node_t *prev = current->previous;
             prev->next = TO_DL_NODE item;
@@ -270,12 +261,13 @@ int d_linked_list_int_insert_before(d_linked_list_int_t **head, d_linked_list_in
 }
 
 // insert after exercise
-int d_linked_list_int_insert_after(d_linked_list_int_t **head, d_linked_list_int_t *item, const int after_this)
+int d_linked_list_insert_after(d_linked_list_t **head, d_linked_list_t *item, const void *after_this, const size_t this_size)
 {
     d_linked_list_node_t *current = TO_DL_NODE * head;
     while (current)
     {
-        if (((d_linked_list_int_t *)current)->data == after_this)
+        const int equal = memcmp(((d_linked_list_t *)current)->data, after_this, this_size);
+        if (equal == 0)
         {
             (TO_DL_NODE item)->next = current->next;
             (TO_DL_NODE item)->previous = current;
@@ -326,9 +318,19 @@ int d_linked_list_shuffle(d_linked_list_node_t **head)
     return 1;
 }
 
+void d_linked_list_delete_node(d_linked_list_node_t *node_to_delete)
+{
+    free((TO_DLIST node_to_delete)->data);
+    free(node_to_delete);
+}
+
 void d_linked_list_delete(d_linked_list_node_t **head)
 {
-    linked_list_delete(TO_NODE_ADDR head);
+    linked_list_node_t *current;
+    while ((current = linked_list_pop((TO_NODE_ADDR head))))
+    {
+        d_linked_list_delete_node(TO_DL_NODE current);
+    }
 }
 
 //------------------- SETS ---------------------
