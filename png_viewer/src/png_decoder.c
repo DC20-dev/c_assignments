@@ -130,7 +130,7 @@ static int _process_chunks(FILE *file, list_t **chunks_data, list_t **chunks_typ
     const int IHDR_Error = _process_IHDR(file, chunks_data, width, height);  // might fail, stop on error
     if(IHDR_Error)
     {
-        printf("IHDR ERROR!\n");
+        printf("IHDR ERROR #%d!\n", IHDR_Error);
         return -1;
     }
     //IDAT next
@@ -157,26 +157,27 @@ static int _process_IHDR(FILE *file, list_t **chunks_data, uint32_t *out_width, 
     const uint8_t compression_m = IHDR_data[10];
     const uint8_t filter_m = IHDR_data[11];
     const uint8_t interlace_m = IHDR_data[12];
+    //printf("IHDR:\ndepth: %d, color type: %d, compression: %d, filter: %d, interlace: %d\n", bit_depth, color_type, compression_m, filter_m, interlace_m);
     // FILTER UNSUPPORTED STUFF HERE AND EVENTUALLY STOP EXECUTION WITH ERROR
     if(compression_m != 0)
     {
-        return -1;
+        return 10;
     }
     if(filter_m != 0)
     {
-        return -1;
+        return 11;
     }
     if(color_type != 6)
     {
-        return -1;
+        return 12;
     }
     if(bit_depth != 8)
     {
-        return -1;
+        return 13;
     }
     if(interlace_m != 0)
     {
-        return -1;
+        return 14;
     }
     // export data
 
@@ -249,16 +250,17 @@ static int _reconstruct_pixel_data(list_t **compressed_data, uint32_t width, uin
     // ======================= data uncompressed, now let's process it =========================
 
     const int bytes_per_pixel = 4;
-    const int stride = width * bytes_per_pixel;
+    const uint32_t stride = width * bytes_per_pixel;
     unsigned char *reconstructed_data = malloc(stride * height);
 
     int index = 0;
-    int appended_count = 0;
+    unsigned int appended_count = 0;
     for (uint32_t r = 0; r < height; r++) // for each scanline
     {
         const unsigned char filter_type = uncompressed_data[index]; // first byte in scanline
+        printf("At line %d in image, filter type is: %d\n", r, filter_type);
         index++;
-        for (int c = 0; c < stride; c++) // for each byte in scanline
+        for (uint32_t c = 0; c < stride; c++) // for each byte in scanline
         {
             const unsigned char filtered_x = uncompressed_data[index];
             index++;
@@ -350,12 +352,12 @@ static unsigned char _paeth_predictor(unsigned char a, unsigned char b, unsigned
 }
 
 // Sub pixel filtering type
-static unsigned char _recon_a(unsigned char *reconstructed_data, int r, int c, int stride)
+static unsigned char _recon_a(unsigned char *reconstructed_data, unsigned int r, unsigned int c, unsigned int stride)
 {
     unsigned char res;
     if(c >= 4)
     {
-        return reconstructed_data[(unsigned int)r * (unsigned int)stride + (unsigned int)c - 4];
+        return reconstructed_data[r * stride + (c - 4)];
     }
     else
     {
@@ -364,12 +366,12 @@ static unsigned char _recon_a(unsigned char *reconstructed_data, int r, int c, i
 }
 
 // Up pixel filtering type
-static unsigned char _recon_b(unsigned char *reconstructed_data, int r, int c, int stride)
+static unsigned char _recon_b(unsigned char *reconstructed_data, unsigned int r, unsigned int c, unsigned int stride)
 {
     unsigned char res;
     if(r > 0)
     {
-        return reconstructed_data[((unsigned int)r-1) * (unsigned int)stride + (unsigned int)c];
+        return reconstructed_data[(r-1) * stride + c];
     }
     else
     {
@@ -377,13 +379,13 @@ static unsigned char _recon_b(unsigned char *reconstructed_data, int r, int c, i
     }
 }
 
-// Average pixel filtering type
-static unsigned char _recon_c(unsigned char *reconstructed_data, int r, int c, int stride)
+// sub + up pixel filtering type
+static unsigned char _recon_c(unsigned char *reconstructed_data, unsigned int r, unsigned int c, unsigned int stride)
 {
     unsigned char res;
     if(r > 0 && c >= 4)
     {
-        return reconstructed_data[((unsigned int)r-1) * (unsigned int)stride + (unsigned int)c - 4];
+        return reconstructed_data[(r-1) * stride + c - 4];
     }
     else
     {

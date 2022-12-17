@@ -1,6 +1,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include "png_decoder.h"
+#include <stdio.h>
 
 int main(int argc, char **argv)
 {
