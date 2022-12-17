@@ -93,6 +93,7 @@ int main(int argc, char **argv)
                 SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
                 free(image);
                 draw_texture = 1;
+                printf("image width: %d, image height: %d\n", width, height);
             }
             else
             {

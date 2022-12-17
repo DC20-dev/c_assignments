@@ -279,8 +279,8 @@ static int _reconstruct_pixel_data(list_t **compressed_data, uint32_t width, uin
             {
                 reconstructed_x = filtered_x + 
                 (
-                    _recon_a(reconstructed_data, r, c, stride) +
-                    _recon_b(reconstructed_data, r, c, stride)
+                    (_recon_a(reconstructed_data, r, c, stride) +
+                    _recon_b(reconstructed_data, r, c, stride)) / 2
                 );
             }
             else if(filter_type == 4) // Paeth
@@ -355,7 +355,7 @@ static unsigned char _recon_a(unsigned char *reconstructed_data, int r, int c, i
     unsigned char res;
     if(c >= 4)
     {
-        return reconstructed_data[r * stride + c - 4];
+        return reconstructed_data[(unsigned int)r * (unsigned int)stride + (unsigned int)c - 4];
     }
     else
     {
@@ -369,7 +369,7 @@ static unsigned char _recon_b(unsigned char *reconstructed_data, int r, int c, i
     unsigned char res;
     if(r > 0)
     {
-        return reconstructed_data[(r-1) * stride + c];
+        return reconstructed_data[((unsigned int)r-1) * (unsigned int)stride + (unsigned int)c];
     }
     else
     {
@@ -383,7 +383,7 @@ static unsigned char _recon_c(unsigned char *reconstructed_data, int r, int c, i
     unsigned char res;
     if(r > 0 && c >= 4)
     {
-        return reconstructed_data[(r-1) * stride + c - 4];
+        return reconstructed_data[((unsigned int)r-1) * (unsigned int)stride + (unsigned int)c - 4];
     }
     else
     {
