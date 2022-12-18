@@ -4,8 +4,8 @@
 
 #define COLL_VER 1.0
 
-#define TO_NODE (linked_list_node_t *)
-#define TO_NODE_ADDR (linked_list_node_t **)
+#define TO_L_NODE (linked_list_node_t *)
+#define TO_L_NODE_ADDR (linked_list_node_t **)
 #define TO_LIST (linked_list_t *)
 #define TO_LIST_ADDR (linked_list_t **)
 #define TO_DL_NODE (d_linked_list_node_t *)
@@ -18,6 +18,11 @@
 #define TO_DICT_NODE (dictionary_node_t *)
 
 #define TO_(type) *(type*)
+
+//
+// ADD MACROS TO MAKE FUNCTIONS EASIER TO USE (AVOID STUPID CASTING)
+//
+
 //--------------- LINKED LIST ---------------------
 
 typedef struct linked_list_node

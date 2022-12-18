@@ -67,6 +67,11 @@ linked_list_node_t *linked_list_pop(linked_list_node_t **head)
 
 linked_list_node_t *linked_list_dequeue(linked_list_node_t **head)
 {
+    if(!*head)
+    {
+        return NULL;
+    }
+
     linked_list_node_t *current_node = *head;
     linked_list_node_t *last_node = NULL;
 
@@ -118,7 +123,7 @@ linked_list_t *linked_list_create_new(const void* data, size_t size)
 // remove item exercise
 int linked_list_remove_item(linked_list_t **head, const void* data, const size_t size)
 {
-    linked_list_node_t *current = TO_NODE * head;
+    linked_list_node_t *current = TO_L_NODE * head;
     linked_list_node_t *prev = NULL;
     while (current)
     {
@@ -157,7 +162,7 @@ void linked_list_delete(linked_list_node_t **head)
 
 d_linked_list_node_t *d_linked_list_get_tail(d_linked_list_node_t **head)
 {
-    return TO_DL_NODE linked_list_get_tail(TO_NODE_ADDR head);
+    return TO_DL_NODE linked_list_get_tail(TO_L_NODE_ADDR head);
 }
 
 d_linked_list_node_t *d_linked_list_pop(d_linked_list_node_t **head)
@@ -287,7 +292,7 @@ int d_linked_list_insert_after(d_linked_list_t **head, d_linked_list_t *item, co
 
 int d_linked_list_shuffle(d_linked_list_node_t **head)
 {
-    const size_t len = linked_list_get_len(TO_NODE_ADDR head);
+    const size_t len = linked_list_get_len(TO_L_NODE_ADDR head);
     d_linked_list_node_t **nodes = calloc(len, sizeof(d_linked_list_node_t *));
     if (!nodes)
     {
@@ -296,7 +301,7 @@ int d_linked_list_shuffle(d_linked_list_node_t **head)
     for (size_t i = 0; i < len; i++)
     {
         // granted that is len because already calculated, not possible to go off list
-        nodes[i] =TO_DL_NODE linked_list_pop(TO_NODE_ADDR head);
+        nodes[i] =TO_DL_NODE linked_list_pop(TO_L_NODE_ADDR head);
     }
     // now shuffle this array using Fisher&Yates algorithm
     for (size_t i = 0; i < len - 1; i++)
@@ -327,7 +332,7 @@ void d_linked_list_delete_node(d_linked_list_node_t *node_to_delete)
 void d_linked_list_delete(d_linked_list_node_t **head)
 {
     linked_list_node_t *current;
-    while ((current = linked_list_pop((TO_NODE_ADDR head))))
+    while ((current = linked_list_pop((TO_L_NODE_ADDR head))))
     {
         d_linked_list_delete_node(TO_DL_NODE current);
     }
@@ -414,7 +419,7 @@ set_node_t *set_insert(set_table_t **table, const char *key, const size_t key_le
         head = head->next;
     }
     (*table)->_collisions++;
-    tail->next = TO_NODE new_item;
+    tail->next = TO_L_NODE new_item;
     return new_item;
 }
 
@@ -616,7 +621,7 @@ dictionary_node_t *dictionary_insert(dictionary_t **table, const char *key, cons
     (TO_SET_NODE new_item)->key_len = key_len;
     new_item->data = malloc(datasize);
     memcpy(new_item->data, data, datasize);
-    (TO_NODE new_item)->next = NULL;
+    (TO_L_NODE new_item)->next = NULL;
 
     linked_list_node_t *tail = head;
 
@@ -630,7 +635,7 @@ dictionary_node_t *dictionary_insert(dictionary_t **table, const char *key, cons
         head = head->next;
     }
 
-    tail->next = TO_NODE new_item;
+    tail->next = TO_L_NODE new_item;
     (TO_SET (*table))->_collisions++;
     return new_item;
 }
